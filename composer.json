@@ -1,0 +1,22 @@
+{
+    "name": "getdkan/mock-chain",
+    "description": "A library that helps create chains of mocked objects.",
+    "license": "GPL-3.0-only",
+    "authors": [
+        {
+            "name": "fmizzell",
+            "email": "fmizzell.dev@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MockChain\\": "src/",
+            "MockChainTest\\": "test/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.5.0"
+    },
+    "require": {
+    }
+}
