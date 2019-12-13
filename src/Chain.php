@@ -8,186 +8,121 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class MockChain.
  */
-class Chain {
+class Chain
+{
 
-  private $testCase;
-  private $definitons = [];
-  private $root = NULL;
-  private $storeIds = [];
-  private $store = [];
+    private $testCase;
+    private $definitons = [];
+    private $root = null;
+    private $storeIds = [];
+    private $store = [];
 
-  public function __construct(TestCase $case) {
-    $this->testCase = $case;
-  }
-
-  public function add($objectClass, $method, $return, $storeId = NULL) {
-    if (!$this->root) {
-      $this->root = $objectClass;
+    public function __construct(TestCase $case)
+    {
+        $this->testCase = $case;
     }
 
-    $this->definitons[$objectClass][$method] = $return;
-
-    if ($storeId) {
-      $this->storeIds[$objectClass][$method] = $storeId;
-    }
-
-    return $this;
-  }
-
-  public function getStoredInput($id) {
-    return (isset($this->store[$id])) ? $this->store[$id] : NULL;
-  }
-
-  public function getMock() {
-    return $this->build($this->root);
-  }
-
-  private function build($objectClass) {
-    $methods = $this->getMethods($objectClass);
-
-    $mock = $this->testCase->getMockBuilder($objectClass)
-      ->disableOriginalConstructor()
-      ->setMethods($methods)
-      ->getMockForAbstractClass();
-
-    foreach ($methods as $method) {
-      $this->setupMethodReturns($objectClass, $mock, $method);
-    }
-    return $mock;
-  }
-
-  private function setupMethodReturns($objectClass, MockObject $mock, $method) {
-    $return = $this->getReturn($objectClass, $method);
-    $storeId = $this->getStoreId($objectClass, $method);
-
-    if ($storeId) {
-      $this->setStorageWithReturn($mock, $method, $storeId, $return);
-    }
-    elseif ($return instanceof Options || $return instanceof Sequence) {
-      $this->setMultipleReturnsBasedOnInput($mock, $method, $return);
-    }
-    elseif (is_object($return)) {
-      $this->setObjectReturnOrException($mock, $method, $return);
-    }
-    elseif (is_string($return)) {
-      $this->setReturnsBasedOnStringType($mock, $method, $return, $objectClass);
-    }
-    $mock->method($method)->willReturn($return);
-  }
-
-  private function setStorageWithReturn(MockObject $mock, $method, $storeId, $return) {
-    $mock->method($method)->willReturnCallback(function ($input) use ($storeId, $return) {
-      if (func_num_args() > 1) {
-        $this->store[$storeId] = func_get_args();
-      }
-      else {
-        $this->store[$storeId] = $input;
-      }
-
-      if (is_object($return)) {
-        if ($return instanceof \Exception) {
-          throw $return;
+    public function add($objectClass, $method, $return, $storeId = null)
+    {
+        if (!$this->root) {
+            $this->root = $objectClass;
         }
-        return $return;
-      }
-      if (is_string($return)) {
-        if (class_exists($return)) {
-          return $this->build($return);
+
+        $this->definitons[$objectClass][$method] = $return;
+
+        if ($storeId) {
+            $this->storeIds[$objectClass][$method] = $storeId;
         }
-        return $return;
-      }
-      elseif (is_bool($return) || is_array($return) || is_null($return)) {
-        return $return;
-      }
-    });
-  }
 
-  private function setObjectReturnOrException(MockObject $mock, $method, $return) {
-    if ($return instanceof \Exception) {
-      $mock->method($method)->willThrowException($return);
+        return $this;
     }
-    else {
-      $mock->method($method)->willReturn($return);
-    }
-  }
 
-  private function setMultipleReturnsBasedOnInput(MockObject $mock, $method, $return) {
-
-    if ($return instanceof Options) {
-      $this->setMultipleReturnsBasedOnInputOptions($mock, $method, $return);
+    public function getMock()
+    {
+        return $this->build($this->root);
     }
-    elseif ($return instanceof Sequence) {
-      $this->setMultipleReturnsBasedOnInputSequence($mock, $method, $return);
-    }
-  }
 
-  private function setMultipleReturnsBasedOnInputOptions(MockObject $mock, $method, Options $return) {
-    $storeId = $return->getUse();
-    $mock->method($method)
-      ->willReturnCallback(function ($input) use ($return, $storeId) {
-        foreach ($return->options() as $possible_input) {
-          $actual_input = isset($storeId) ? $this->store[$storeId] : $input;
-          if ($actual_input == $possible_input) {
-            $output = $return->return($actual_input);
-            if (is_string($output)) {
-              return $this->build($output);
+    public function getStoredInput($id): array
+    {
+        return (isset($this->store[$id])) ? $this->store[$id] : [];
+    }
+
+    private function build($objectClass)
+    {
+        $methods = $this->getMethods($objectClass);
+
+        $mock = $this->testCase->getMockBuilder($objectClass)
+        ->disableOriginalConstructor()
+        ->setMethods($methods)
+        ->getMockForAbstractClass();
+
+        foreach ($methods as $method) {
+            $mock->method($method)->willReturnCallback(function () use ($objectClass, $mock, $method) {
+                return $this->buildReturn($objectClass, $mock, $method, func_get_args());
+            });
+        }
+
+        return $mock;
+    }
+
+    private function buildReturn(string $objectClass, $mock, string $method, array $inputs, $return = null)
+    {
+        $return = (isset($return)) ? $return : $this->getReturn($objectClass, $method);
+        $storeId = $this->getStoreId($objectClass, $method);
+        if ($storeId) {
+            $this->store[$storeId] = $inputs;
+        }
+
+        if ($return instanceof Sequence) {
+            return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
+        } elseif ($return instanceof Options) {
+            $myInputs = $inputs;
+            if ($use = $return->getUse()) {
+                $myInputs = array_merge($myInputs, $this->getStoredInput($use));
             }
-            return $output;
-          }
+            $input = array_shift($myInputs);
+            return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
+        } elseif ($return instanceof \Exception) {
+            throw $return;
+        } elseif (is_string($return)) {
+            if (class_exists($return)) {
+                if ($return == $objectClass) {
+                    return $mock;
+                } else {
+                    return $this->build($return);
+                }
+            }
         }
-      });
-  }
 
-  private function setMultipleReturnsBasedOnInputSequence(MockObject $mock, $method, Sequence $return) {
-    $mock->method($method)
-      ->willReturnCallback(function () use ($return) {
-        $output = $return->return();
-        if (is_string($output)) {
-          return $this->build($output);
+        return $return;
+    }
+
+    private function getMethods($objectClass)
+    {
+        $methods = [];
+
+        if (isset($this->definitons[$objectClass])) {
+            foreach ($this->definitons[$objectClass] as $method => $blah) {
+                $methods[] = $method;
+            }
         }
-        return $output;
-      });
-  }
 
-  private function setReturnsBasedOnStringType(MockObject $mock, $method, string $return, $objectClass) {
-    // We accept complex returns as json strings.
-    if (class_exists($return)) {
-      if ($return == $objectClass) {
-        $mock->method($method)->willReturn($mock);
-      }
-      else {
-        $mock->method($method)->willReturn($this->build($return));
-      }
-    }
-    else {
-      $mock->method($method)->willReturn($return);
-    }
-  }
-
-  private function getMethods($objectClass) {
-    $methods = [];
-
-    if (isset($this->definitons[$objectClass])) {
-      foreach ($this->definitons[$objectClass] as $method => $blah) {
-        $methods[] = $method;
-      }
+        return $methods;
     }
 
-    return $methods;
-  }
-
-  private function getReturn($objectClass, $method) {
-    if (isset($this->definitons[$objectClass][$method])) {
-      return $this->definitons[$objectClass][$method];
+    private function getReturn($objectClass, $method)
+    {
+        if (isset($this->definitons[$objectClass][$method])) {
+            return $this->definitons[$objectClass][$method];
+        }
+        return null;
     }
-    return NULL;
-  }
 
-  private function getStoreId($objectClass, $method) {
-    if (isset($this->storeIds[$objectClass][$method])) {
-      return $this->storeIds[$objectClass][$method];
+    private function getStoreId($objectClass, $method)
+    {
+        if (isset($this->storeIds[$objectClass][$method])) {
+            return $this->storeIds[$objectClass][$method];
+        }
+        return null;
     }
-    return NULL;
-  }
-
 }
