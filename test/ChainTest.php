@@ -3,9 +3,9 @@
 namespace MockChainTest;
 
 use MockChain\Chain;
-use MockChain\Anatomy\Body;
-use MockChain\Anatomy\System;
-use MockChain\Anatomy\Organ;
+use MockChainTest\Anatomy\Body;
+use MockChainTest\Anatomy\System;
+use MockChainTest\Anatomy\Organ;
 use MockChain\Options;
 use MockChain\Sequence;
 use PHPUnit\Framework\TestCase;

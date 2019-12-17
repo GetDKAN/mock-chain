@@ -1,10 +1,7 @@
 <?php
 
-namespace MockChain\Anatomy;
+namespace MockChainTest\Anatomy;
 
-/**
- * @codeCoverageIgnore
- */
 class Organ
 {
     private $name;

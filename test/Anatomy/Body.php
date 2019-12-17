@@ -1,6 +1,6 @@
 <?php
 
-namespace MockChain\Anatomy;
+namespace MockChainTest\Anatomy;
 
 class Body
 {
