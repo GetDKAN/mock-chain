@@ -85,7 +85,7 @@ class Chain
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {
-            if (class_exists($return)) {
+            if (class_exists($return) || interface_exists($return)) {
                 if ($return == $objectClass) {
                     return $mock;
                 } else {
