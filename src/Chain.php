@@ -80,7 +80,16 @@ class Chain
             if ($use = $return->getUse()) {
                 $myInputs = array_merge($myInputs, $this->getStoredInput($use));
             }
-            $input = array_shift($myInputs);
+
+            $index = $return->getIndex();
+            if (count($myInputs) == 1) {
+                $input = array_shift($myInputs);
+            } elseif (isset($index)) {
+                $input = $myInputs[$index];
+            } else {
+                $input = json_encode($myInputs);
+            }
+
             return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
         } elseif ($return instanceof \Exception) {
             throw $return;

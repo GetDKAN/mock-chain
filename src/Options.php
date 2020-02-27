@@ -8,6 +8,11 @@ class Options
     private $options;
     private $storeId;
 
+    /**
+     * The position in the inputs array of the relevant data for this option.
+     */
+    private $index = null;
+
     public function __construct()
     {
         $this->options = [];
@@ -25,8 +30,20 @@ class Options
         return $this->storeId;
     }
 
+    public function index($index)
+    {
+        $this->index = $index;
+        return $this;
+    }
+
+    public function getIndex()
+    {
+        return $this->index;
+    }
+
     public function add($option, $return)
     {
+        $option = is_array($option) ? json_encode($option) : $option;
         $this->options[$option] = $return;
         return $this;
     }
