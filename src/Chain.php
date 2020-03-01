@@ -94,7 +94,10 @@ class Chain
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {
-            if (class_exists($return) || interface_exists($return)) {
+            // Class exists is case insensitive, to keep string from being
+            // confused with actual classes, we make the, sometimes invalid,
+            // assumption that class names start with an uppercase letter.
+            if ((ucfirst($return) == $return) && (class_exists($return) || interface_exists($return))) {
                 if ($return == $objectClass) {
                     return $mock;
                 } else {
