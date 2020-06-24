@@ -10,7 +10,11 @@ class Sequence
 
     public function add($return)
     {
-        $this->sequence[] = $return;
+        if (!isset($return)) {
+            $this->sequence[] = new ReturnNull();
+        } else {
+            $this->sequence[] = $return;
+        }
 
         return $this;
     }
@@ -18,10 +22,10 @@ class Sequence
     public function return()
     {
         $index = $this->counter;
-
-      // Always return the last element when done.
-        if (!isset($this->sequence[$index])) {
-            $index = count($this->sequence) - 1;
+        $lastIndex = count($this->sequence) - 1;
+        // Always return the last element when done.
+        if ($index > $lastIndex) {
+            $index = $lastIndex;
         }
 
         $return = $this->sequence[$index];

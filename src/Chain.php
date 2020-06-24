@@ -73,8 +73,10 @@ class Chain
             $this->store[$storeId] = $inputs;
         }
 
-        if ($return instanceof Sequence) {
-            return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
+        if ($return instanceof ReturnNull) {
+            $return = null;
+        } elseif ($return instanceof Sequence) {
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
         } elseif ($return instanceof Options) {
             $myInputs = $inputs;
             if ($use = $return->getUse()) {
@@ -90,7 +92,7 @@ class Chain
                 $input = json_encode($myInputs);
             }
 
-            return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {
@@ -99,9 +101,9 @@ class Chain
             // assumption that class names start with an uppercase letter.
             if ((ucfirst($return) == $return) && (class_exists($return) || interface_exists($return))) {
                 if ($return == $objectClass) {
-                    return $mock;
+                    $return = $mock;
                 } else {
-                    return $this->build($return);
+                    $return = $this->build($return);
                 }
             }
         }
