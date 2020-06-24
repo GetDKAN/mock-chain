@@ -74,10 +74,9 @@ class Chain
         }
 
         if ($return instanceof ReturnNull) {
-            return null;
-        }
-        elseif ($return instanceof Sequence) {
-            return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
+            $return = null;
+        } elseif ($return instanceof Sequence) {
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
         } elseif ($return instanceof Options) {
             $myInputs = $inputs;
             if ($use = $return->getUse()) {
@@ -93,15 +92,15 @@ class Chain
                 $input = json_encode($myInputs);
             }
 
-            return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {
             if (class_exists($return) || interface_exists($return)) {
                 if ($return == $objectClass) {
-                    return $mock;
+                    $return = $mock;
                 } else {
-                    return $this->build($return);
+                    $return = $this->build($return);
                 }
             }
         }
