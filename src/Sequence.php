@@ -10,7 +10,11 @@ class Sequence
 
     public function add($return)
     {
-        $this->sequence[] = $return;
+        if (!isset($return)) {
+            $this->sequence[] = new ReturnNull();
+        } else {
+            $this->sequence[] = $return;
+        }
 
         return $this;
     }
