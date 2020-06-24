@@ -73,6 +73,9 @@ class Chain
             $this->store[$storeId] = $inputs;
         }
 
+        if ($return instanceof ReturnNull) {
+            return null;
+        }
         if ($return instanceof Sequence) {
             return $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
         } elseif ($return instanceof Options) {
