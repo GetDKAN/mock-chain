@@ -52,14 +52,27 @@ class Chain
         $methods = $this->getMethods($objectClass);
 
         $mock = $this->testCase->getMockBuilder($objectClass)
-        ->disableOriginalConstructor()
-        ->setMethods($methods)
-        ->getMockForAbstractClass();
+          ->disableOriginalConstructor()
+          ->setMethods($methods)
+          ->getMockForAbstractClass();
 
         foreach ($methods as $method) {
-            $mock->method($method)->willReturnCallback(function () use ($objectClass, $mock, $method) {
-                return $this->buildReturn($objectClass, $mock, $method, func_get_args());
-            });
+            if (method_exists($objectClass, $method)) {
+                $mock->method($method)->willReturnCallback(function () use (
+                    $objectClass,
+                    $mock,
+                    $method
+                ) {
+                    return $this->buildReturn(
+                        $objectClass,
+                        $mock,
+                        $method,
+                        func_get_args()
+                    );
+                });
+            } else {
+                throw new \Exception("method {$method} does not exist in {$objectClass}");
+            }
         }
 
         return $mock;
