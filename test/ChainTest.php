@@ -93,4 +93,11 @@ class ChainTest extends TestCase
 
         $body->getSystem("blah");
     }
+
+    public function testNonExistentMethod() {
+      $this->expectExceptionMessage("method blah does not exist in MockChainTest\Anatomy\Organ");
+      (new Chain($this))
+        ->add(Organ::class, 'blah', null)
+        ->getMock();
+    }
 }
