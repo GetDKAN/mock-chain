@@ -21,8 +21,8 @@ class ChainTest extends TestCase
 
         $system = (new Chain($this))
           ->add(System::class, 'getName', "digestive")
-          ->add(System::class, 'getOrgans', [$organ, $organ])
-          ->add(System::class, 'getOrgan', new Organ('mouth'))
+          ->addd('getOrgans', [$organ, $organ])
+          ->addd('getOrgan', new Organ('mouth'))
           ->getMock();
 
         $body = new Body();

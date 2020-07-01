@@ -16,6 +16,8 @@ class Chain
     private $storeIds = [];
     private $store = [];
 
+    private $lastClass;
+
     public function __construct(TestCase $case)
     {
         $this->testCase = $case;
@@ -23,6 +25,8 @@ class Chain
 
     public function add($objectClass, $method = null, $return = null, $storeId = null)
     {
+        $this->lastClass = $objectClass;
+
         if (!$this->root) {
             $this->root = $objectClass;
         }
@@ -40,6 +44,15 @@ class Chain
         }
 
         return $this;
+    }
+
+    public function addd($method, $return = null, $storeId = null)
+    {
+        if (!isset($this->lastClass)) {
+            throw new \Exception("You should use the add method before using addd.");
+        }
+
+        return $this->add($this->lastClass, $method, $return, $storeId);
     }
 
     public function getMock()
