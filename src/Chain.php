@@ -22,13 +22,19 @@ class Chain
         $this->testCase = $case;
     }
 
-    public function add($objectClass, $method, $return, $storeId = null)
+    public function add($objectClass, $method = null, $return = null, $storeId = null)
     {
         if (!$this->root) {
             $this->root = $objectClass;
         }
 
-        $this->definitons[$objectClass][$method] = $return;
+        if (!isset($this->definitons[$objectClass])) {
+            $this->definitons[$objectClass] = [];
+        }
+
+        if ($method) {
+            $this->definitons[$objectClass][$method] = $return;
+        }
 
         if ($storeId) {
             $this->storeIds[$objectClass][$method] = $storeId;
@@ -51,10 +57,13 @@ class Chain
     {
         $methods = $this->getMethods($objectClass);
 
-        $mock = $this->testCase->getMockBuilder($objectClass)
-          ->disableOriginalConstructor()
-          ->setMethods($methods)
-          ->getMockForAbstractClass();
+        $builder = $this->testCase->getMockBuilder($objectClass);
+        $builder->disableOriginalConstructor();
+
+        if (!empty($methods)) {
+            $builder->setMethods($methods);
+        }
+        $mock = $builder->getMockForAbstractClass();
 
         foreach ($methods as $method) {
             if (method_exists($objectClass, $method)) {
