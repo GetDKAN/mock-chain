@@ -2,7 +2,6 @@
 
 namespace MockChain;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -57,8 +56,7 @@ class Chain
     {
         $methods = $this->getMethods($objectClass);
 
-        $builder = $this->testCase->getMockBuilder($objectClass);
-        $builder->disableOriginalConstructor();
+        $builder = $this->getBuilder($objectClass);
 
         if (!empty($methods)) {
             $builder->setMethods($methods);
@@ -66,25 +64,32 @@ class Chain
         $mock = $builder->getMockForAbstractClass();
 
         foreach ($methods as $method) {
-            if (method_exists($objectClass, $method)) {
-                $mock->method($method)->willReturnCallback(function () use (
-                    $objectClass,
-                    $mock,
-                    $method
-                ) {
-                    return $this->buildReturn(
-                        $objectClass,
-                        $mock,
-                        $method,
-                        func_get_args()
-                    );
-                });
-            } else {
+            if (!method_exists($objectClass, $method)) {
                 throw new \Exception("method {$method} does not exist in {$objectClass}");
             }
+
+            $mock->method($method)->willReturnCallback(function () use (
+                $objectClass,
+                $mock,
+                $method
+            ) {
+                return $this->buildReturn(
+                    $objectClass,
+                    $mock,
+                    $method,
+                    func_get_args()
+                );
+            });
         }
 
         return $mock;
+    }
+
+    private function getBuilder($class)
+    {
+        $builder = $this->testCase->getMockBuilder($class);
+        $builder->disableOriginalConstructor();
+        return $builder;
     }
 
     private function buildReturn(string $objectClass, $mock, string $method, array $inputs, $return = null)
