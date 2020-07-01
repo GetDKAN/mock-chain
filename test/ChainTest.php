@@ -100,4 +100,9 @@ class ChainTest extends TestCase
         ->add(Organ::class, 'blah', null)
         ->getMock();
     }
+
+    public function testUsingAdddIncorrectly() {
+      $this->expectExceptionMessage("You should use the add method before using addd.");
+      (new Chain($this))->addd("hello");
+    }
 }
