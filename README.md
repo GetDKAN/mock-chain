@@ -6,3 +6,46 @@
 
 
 A library that helps create chains of mocked objects.
+
+### Example
+
+Imagine a dependency on an object of a class like this:
+
+```php
+$body->getSystem('nervous')->getOrgan('brain')->getName();
+```
+
+Creating a double for the body object with plain phpunit might look like this:
+
+```php
+$organ = $this->getMockBuilder(Organ::class)
+    ->disableOriginalConstructor()
+    ->setMethods(['getName'])
+    ->getMock();
+
+$organ->method('getName')->willReturn('brain');
+
+$system = $this->getMockBuilder(System::class)
+  ->disableOriginalConstructor()
+  ->setMethods(['getOrgan'])
+  ->getMock();
+
+$system->method('getOrgan')->willReturn($organ);
+
+$body = $this->getMockBuilder(Body::class)
+  ->disableOriginalConstructor()
+  ->setMethods(['getSystem'])
+  ->getMock();
+
+$body->method('getSystem')->willReturn($system);
+```
+
+As you can see, the implementation of a simple chain of doubles/mocks can become very verbose. The purpose of this library is to make this process simpler. Here is the same mocked object implemented with a mock-chain:
+
+```php
+$body = (new Chain($this))
+    ->add(Body::class, 'getSystem', System::class)
+    ->add(System::class, 'getOrgan', Organ::class)
+    ->add(Organ::class, 'getName', 'brain')
+    ->getMock();
+```
