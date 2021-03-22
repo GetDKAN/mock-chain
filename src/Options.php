@@ -56,7 +56,7 @@ class Options
     public function return($option)
     {
         if (!isset($this->options[$option])) {
-          return;
+            return;
         }
 
         $return = $this->options[$option];
