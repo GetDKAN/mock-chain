@@ -55,6 +55,10 @@ class Options
 
     public function return($option)
     {
+        if (!isset($this->options[$option])) {
+          return;
+        }
+
         $return = $this->options[$option];
 
         if ($return instanceof Sequence) {
