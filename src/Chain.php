@@ -134,7 +134,7 @@ class Chain
             $actualReturn = $return->return($input);
 
             if (!isset($actualReturn)) {
-              throw new \Exception("Option {$input} does not exist.");
+                throw new \Exception("Option {$input} does not exist.");
             }
 
             $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $actualReturn);
