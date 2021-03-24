@@ -131,8 +131,13 @@ class Chain
             } else {
                 $input = json_encode($myInputs);
             }
+            $actualReturn = $return->return($input);
 
-            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return($input));
+            if (!isset($actualReturn)) {
+                throw new \Exception("Option {$input} does not exist.");
+            }
+
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $actualReturn);
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {

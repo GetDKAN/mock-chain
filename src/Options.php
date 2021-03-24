@@ -2,6 +2,11 @@
 
 namespace MockChain;
 
+/**
+ * Class Options
+ * @package MockChain
+ * @todo Options for complex things, like objects.
+ */
 class Options
 {
 

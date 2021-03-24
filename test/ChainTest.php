@@ -105,4 +105,13 @@ class ChainTest extends TestCase
       $this->expectExceptionMessage("You should use the add method before using addd.");
       (new Chain($this))->addd("hello");
     }
+
+    public function testNonExistentOption() {
+        $this->expectExceptionMessage('Option digestive does not exist');
+        $options = new Options();
+        $mock = (new Chain($this))
+            ->add(Body::class, 'getSystem', $options)
+            ->getMock();
+        $mock->getSystem("digestive");
+    }
 }
