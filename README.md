@@ -20,21 +20,21 @@ Creating a double for the body object with plain phpunit might look like this:
 ```php
 $organ = $this->getMockBuilder(Organ::class)
     ->disableOriginalConstructor()
-    ->setMethods(['getName'])
+    ->onlyMethods(['getName'])
     ->getMock();
 
 $organ->method('getName')->willReturn('brain');
 
 $system = $this->getMockBuilder(System::class)
   ->disableOriginalConstructor()
-  ->setMethods(['getOrgan'])
+  ->onlyMethods(['getOrgan'])
   ->getMock();
 
 $system->method('getOrgan')->willReturn($organ);
 
 $body = $this->getMockBuilder(Body::class)
   ->disableOriginalConstructor()
-  ->setMethods(['getSystem'])
+  ->onlyMethods(['getSystem'])
   ->getMock();
 
 $body->method('getSystem')->willReturn($system);
