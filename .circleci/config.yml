@@ -9,11 +9,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup Xdebug
-          command: |
-            sudo pecl channel-update pecl.php.net
-            sudo pecl install xdebug && sudo docker-php-ext-enable xdebug
-      - run:
           name: Setup Code Climate test-reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
