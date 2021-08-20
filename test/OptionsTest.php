@@ -22,5 +22,7 @@ class OptionsTest extends TestCase
         $this->assertEquals($options->return("multi"), "shalom");
         $this->assertEquals($options->return("multi"), "shalom");
         $this->assertNull($options->return('not-an-option'));
+        $options->index(2);
+        $this->assertEquals(2, $options->getIndex());
     }
 }
