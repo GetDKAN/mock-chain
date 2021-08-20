@@ -1,8 +1,8 @@
 version: 2.0
 jobs:
   build:
-    machine:
-      image: ubuntu-2004:202010-01
+    docker:
+      - image: circleci/php:7.3
     environment:
       CC_TEST_REPORTER_ID: 7b1ac919c90c8ea384b4998b267e0f629185a26ffdf0f96ef4f4a09f53488ed2
     working_directory: ~/repo
