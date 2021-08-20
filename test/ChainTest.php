@@ -100,7 +100,7 @@ class ChainTest extends TestCase
 
     public function testNonExistentMethod()
     {
-        $this->expectExceptionMessage("method blah does not exist in MockChainTest\Anatomy\Organ");
+        $this->expectExceptionMessage('Trying to set mock method "blah" with onlyMethods');
         (new Chain($this))
         ->add(Organ::class, 'blah', null)
         ->getMock();

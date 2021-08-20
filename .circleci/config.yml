@@ -5,11 +5,12 @@ jobs:
       - image: circleci/php:7.3
     environment:
       CC_TEST_REPORTER_ID: 7b1ac919c90c8ea384b4998b267e0f629185a26ffdf0f96ef4f4a09f53488ed2
+      XDEBUG_MODE: coverage
     working_directory: ~/repo
     steps:
       - checkout
       - run:
-          name: Setup Code Climate test-reporter
+          name: Set up Code Climate test-reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
