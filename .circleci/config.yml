@@ -9,9 +9,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup DDEV
+          name: Setup Xdebug
           command: |
-            curl -LO https://raw.githubusercontent.com/drud/ddev/master/scripts/install_ddev.sh && bash install_ddev.sh
+            sudo pecl channel-update pecl.php.net
+            sudo pecl install xdebug && sudo docker-php-ext-enable xdebug
       - run:
           name: Setup Code Climate test-reporter
           command: |
@@ -20,10 +21,8 @@ jobs:
       - run:
           name: Run tests
           command: |
-            ddev start
-            ddev xdebug
-            ddev composer install
+            composer install
             ./cc-test-reporter before-build
-            ddev exec ./vendor/bin/phpunit --testsuite all --coverage-clover clover.xml
+            ./vendor/bin/phpunit --testsuite all --coverage-clover clover.xml
             sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
             ./cc-test-reporter after-build --coverage-input-type clover --exit-code $?
