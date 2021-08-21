@@ -10,7 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 class SequenceTest extends TestCase
 {
-    public function test() {
+    public function test()
+    {
         $sequence = new Sequence();
         $sequence->add(null);
         $sequence->add(1);
@@ -22,16 +23,17 @@ class SequenceTest extends TestCase
         $this->assertEquals($sequence->return(), 2);
     }
 
-    public function testSequenceThroughChain() {
-      $sequence = (new Sequence())
+    public function testSequenceThroughChain()
+    {
+        $sequence = (new Sequence())
         ->add(null)
         ->add("hello");
 
-      $mock = (new Chain($this))
+        $mock = (new Chain($this))
         ->add(Organ::class, 'getName', $sequence)
         ->getMock();
 
-      $this->assertNull($mock->getName());
-      $this->assertEquals("hello", $mock->getName());
+        $this->assertNull($mock->getName());
+        $this->assertEquals("hello", $mock->getName());
     }
 }

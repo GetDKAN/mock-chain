@@ -72,7 +72,7 @@ class Chain
         $builder = $this->getBuilder($objectClass);
 
         if (!empty($methods)) {
-            $builder->setMethods($methods);
+            $builder->onlyMethods($methods);
         }
         $mock = $builder->getMockForAbstractClass();
 

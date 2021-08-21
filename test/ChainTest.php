@@ -12,7 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 class ChainTest extends TestCase
 {
-    public function test() {
+    public function test()
+    {
         $organNames = (new Sequence())->add('mouth')->add('stomach');
 
         $organ = (new Chain($this))
@@ -33,7 +34,8 @@ class ChainTest extends TestCase
         $this->assertEquals($body->getSystem('digestive')->getOrgan('mouth')->getName(), 'mouth');
     }
 
-    public function test2() {
+    public function test2()
+    {
         $organNames = (new Sequence())->add('mouth')->add('stomach');
 
         $organ = (new Chain($this))
@@ -56,7 +58,8 @@ class ChainTest extends TestCase
     }
 
 
-    public function test3() {
+    public function test3()
+    {
         $organs = (new Options())
           ->add('mouth', Organ::class)
           ->add('stomach', Organ::class);
@@ -81,7 +84,8 @@ class ChainTest extends TestCase
         $this->assertEquals(json_encode(['stomach']), json_encode($chain->getStoredInput('organ')));
     }
 
-    public function test4() {
+    public function test4()
+    {
         $this->expectExceptionMessage("blah");
 
         $system = (new Chain($this))
@@ -94,19 +98,22 @@ class ChainTest extends TestCase
         $body->getSystem("blah");
     }
 
-    public function testNonExistentMethod() {
-      $this->expectExceptionMessage("method blah does not exist in MockChainTest\Anatomy\Organ");
-      (new Chain($this))
+    public function testNonExistentMethod()
+    {
+        $this->expectExceptionMessage('Trying to set mock method "blah" with onlyMethods');
+        (new Chain($this))
         ->add(Organ::class, 'blah', null)
         ->getMock();
     }
 
-    public function testUsingAdddIncorrectly() {
-      $this->expectExceptionMessage("You should use the add method before using addd.");
-      (new Chain($this))->addd("hello");
+    public function testUsingAdddIncorrectly()
+    {
+        $this->expectExceptionMessage("You should use the add method before using addd.");
+        (new Chain($this))->addd("hello");
     }
 
-    public function testNonExistentOption() {
+    public function testNonExistentOption()
+    {
         $this->expectExceptionMessage('Option digestive does not exist');
         $options = new Options();
         $mock = (new Chain($this))
