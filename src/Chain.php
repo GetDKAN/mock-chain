@@ -5,18 +5,24 @@ namespace MockChain;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class MockChain.
+ * Class Chain.
  */
 class Chain
 {
 
     private $testCase;
-    private $definitons = [];
+    private $definitions = [];
     private $root = null;
     private $storeIds = [];
     private $store = [];
 
     private $lastClass;
+
+    /**
+     * @var array
+     * Instances of already built mocks, keyed by object class.
+     */
+    private $mocks;
 
     public function __construct(TestCase $case)
     {
@@ -31,12 +37,12 @@ class Chain
             $this->root = $objectClass;
         }
 
-        if (!isset($this->definitons[$objectClass])) {
-            $this->definitons[$objectClass] = [];
+        if (!isset($this->definitions[$objectClass])) {
+            $this->definitions[$objectClass] = [];
         }
 
         if ($method) {
-            $this->definitons[$objectClass][$method] = $return;
+            $this->definitions[$objectClass][$method] = $return;
         }
 
         if ($storeId) {
@@ -67,16 +73,9 @@ class Chain
 
     private function build($objectClass)
     {
-        $methods = $this->getMethods($objectClass);
+        $mock = $this->getMockFor($objectClass);
 
-        $builder = $this->getBuilder($objectClass);
-
-        if (!empty($methods)) {
-            $builder->onlyMethods($methods);
-        }
-        $mock = $builder->getMockForAbstractClass();
-
-        foreach ($methods as $method) {
+        foreach ($this->getMethods($objectClass) as $method) {
             if (!method_exists($objectClass, $method)) {
                 throw new \Exception("method {$method} does not exist in {$objectClass}");
             }
@@ -88,7 +87,6 @@ class Chain
             ) {
                 return $this->buildReturn(
                     $objectClass,
-                    $mock,
                     $method,
                     func_get_args()
                 );
@@ -98,6 +96,23 @@ class Chain
         return $mock;
     }
 
+    private function getMockFor($objectClass)
+    {
+        if (!isset($this->mocks[$objectClass])) {
+            $methods = $this->getMethods($objectClass);
+
+            $builder = $this->getBuilder($objectClass);
+
+            if (!empty($methods)) {
+                $builder->onlyMethods($methods);
+            }
+
+            $this->mocks[$objectClass] = $builder->getMockForAbstractClass();
+        }
+
+        return $this->mocks[$objectClass];
+    }
+
     private function getBuilder($class)
     {
         $builder = $this->testCase->getMockBuilder($class);
@@ -105,48 +120,28 @@ class Chain
         return $builder;
     }
 
-    private function buildReturn(string $objectClass, $mock, string $method, array $inputs, $return = null)
+    private function buildReturn(string $objectClass, string $method, array $inputs, $return = null)
     {
         $return = (isset($return)) ? $return : $this->getReturn($objectClass, $method);
-        $storeId = $this->getStoreId($objectClass, $method);
-        if ($storeId) {
-            $this->store[$storeId] = $inputs;
-        }
+
+        $this->storeInputs($objectClass, $method, $inputs);
 
         if ($return instanceof ReturnNull) {
             $return = null;
         } elseif ($return instanceof Sequence) {
-            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
+            $return = $this->buildReturn($objectClass, $method, $inputs, $return->return());
         } elseif ($return instanceof Options) {
-            $myInputs = $inputs;
-            if ($use = $return->getUse()) {
-                $myInputs = array_merge($myInputs, $this->getStoredInput($use));
-            }
-
-            $index = $return->getIndex();
-            if (count($myInputs) == 1) {
-                $input = array_shift($myInputs);
-            } elseif (isset($index)) {
-                $input = $myInputs[$index];
-            } else {
-                $input = json_encode($myInputs);
-            }
-            $actualReturn = $return->return($input);
-
-            if (!isset($actualReturn)) {
-                throw new \Exception("Option {$input} does not exist.");
-            }
-
-            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $actualReturn);
+            $actualReturn = $this->getReturnFromOptions($inputs, $return);
+            $return = $this->buildReturn($objectClass, $method, $inputs, $actualReturn);
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {
-            // Class exists is case insensitive, to keep string from being
+            // Class exists is case-insensitive, to keep string from being
             // confused with actual classes, we make the, sometimes invalid,
             // assumption that class names start with an uppercase letter.
             if ((ucfirst($return) == $return) && (class_exists($return) || interface_exists($return))) {
                 if ($return == $objectClass) {
-                    $return = $mock;
+                    $return = $this->getMockFor($objectClass);
                 } else {
                     $return = $this->build($return);
                 }
@@ -156,12 +151,44 @@ class Chain
         return $return;
     }
 
+    private function getReturnFromOptions($myInputs, $return)
+    {
+
+        if ($use = $return->getUse()) {
+            $myInputs = array_merge($myInputs, $this->getStoredInput($use));
+        }
+
+        $index = $return->getIndex();
+        if (count($myInputs) == 1) {
+            $input = array_shift($myInputs);
+        } elseif (isset($index)) {
+            $input = $myInputs[$index];
+        } else {
+            $input = json_encode($myInputs);
+        }
+        $actualReturn = $return->return($input);
+
+        if (!isset($actualReturn)) {
+            throw new \Exception("Option {$input} does not exist.");
+        }
+
+        return $actualReturn;
+    }
+
+    private function storeInputs($objectClass, $method, $inputs)
+    {
+        $storeId = $this->getStoreId($objectClass, $method);
+        if ($storeId) {
+            $this->store[$storeId] = $inputs;
+        }
+    }
+
     private function getMethods($objectClass)
     {
         $methods = [];
 
-        if (isset($this->definitons[$objectClass])) {
-            foreach ($this->definitons[$objectClass] as $method => $blah) {
+        if (isset($this->definitions[$objectClass])) {
+            foreach ($this->definitions[$objectClass] as $method => $blah) {
                 $methods[] = $method;
             }
         }
@@ -171,8 +198,8 @@ class Chain
 
     private function getReturn($objectClass, $method)
     {
-        if (isset($this->definitons[$objectClass][$method])) {
-            return $this->definitons[$objectClass][$method];
+        if (isset($this->definitions[$objectClass][$method])) {
+            return $this->definitions[$objectClass][$method];
         }
         return null;
     }
