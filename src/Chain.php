@@ -160,13 +160,14 @@ class Chain
 
         $index = $return->getIndex();
         if (count($myInputs) == 1) {
-            $input = array_shift($myInputs);
+            $actualReturn = $return->return(array_shift($myInputs));
         } elseif (isset($index)) {
-            $input = $myInputs[$index];
+            $actualReturn = $return->return($myInputs[$index]);
         } else {
-            $input = json_encode($myInputs);
+            // Last attempt; try first element, then JSON encoded string.
+            $jsonInput = json_encode($myInputs);
+            $actualReturn = $return->return(array_shift($myInputs)) ?? $return->return($jsonInput);
         }
-        $actualReturn = $return->return($input);
 
         if (!isset($actualReturn)) {
             throw new \Exception("Option {$input} does not exist.");
