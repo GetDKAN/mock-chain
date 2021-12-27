@@ -158,17 +158,15 @@ class Chain
             $myInputs = array_merge($myInputs, $this->getStoredInput($use));
         }
 
-        $index = $return->getIndex();
-        if (count($myInputs) == 1) {
-            $actualReturn = $return->return(array_shift($myInputs));
-        } elseif (isset($index)) {
-            $actualReturn = $return->return($myInputs[$index]);
-        } else {
-            // Last attempt; try first element, then JSON encoded string.
-            $jsonInput = json_encode($myInputs);
-            $actualReturn = $return->return(array_shift($myInputs)) ?? $return->return($jsonInput);
+        $jsonInput = json_encode($myInputs);
+        $input = array_shift($myInputs);
+    
+        if (isset($index)) {
+            $input = $return->return($myInputs[$index]);
         }
-
+        
+        $actualReturn = $return->return($input) ?? $return->return($jsonInput);
+        
         if (!isset($actualReturn)) {
             throw new \Exception("Option {$input} does not exist.");
         }
