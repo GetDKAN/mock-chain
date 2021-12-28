@@ -14,13 +14,18 @@ class ChainTest extends TestCase
 {
 
     public function testDocs() {
+
+      $organs = (new Options())
+        ->add(json_encode(["lung", 0]),"yep, the left lung")
+        ->add(json_encode(["lung", 1]), "yep, the right lung");
+
       $mock = (new Chain($this))
-        ->add(System::class, "getOrgan", Organ::class)
+        ->add(System::class, "getOrganByNameAndIndex", $organs)
         ->add(Organ::class, "getName", "heart")
-        ->addd("shoutName", "HEART")
         ->getMock();
 
-      $this->assertEquals("heart", $mock->getOrgan("blah")->getName());
+      $this->assertEquals("yep, the left lung", $mock->getOrganByNameAndIndex("lung", 0));
+      $this->assertEquals("yep, the right lung", $mock->getOrganByNameAndIndex("lung", 1));
     }
 
     public function test()

@@ -70,18 +70,18 @@ Let's explore what is happening here.
 ```php
 (new Chain($this))
 ```
-Here we are calling the constructor of the `Chain` class to create a `Chain` object. The extra parenthesis around the call of the constructor allow us to immediately start calling methods of the constructed object without keeping a reference of the `Chain` object itself.
+Here, we are calling the constructor of the `Chain` class to create a `Chain` object. The extra parenthesis around the call to the constructor allow us to immediately start calling methods without keeping a reference of the `Chain` object itself.
 
 The `Chain` class is a "better" interface around the mocking capabilities provided by `phpunit`, but all the mocking power comes from `phpunit`. This is why the constructor of the `Chain` class takes a `PHPUnit\Framework\TestCase` object.
 
 ```php
 ->add(Organ::class, "getName", "heart")
 ```
-The `add` method is used to inform the `Chain` object of the structure of the mock or mocks that we wish to be created.
+The `add` method is used to inform the `Chain` object of the structure of the mock or mocks that we wish to create.
 
 The first argument to `add` is the **full name of the class** for which we want to create a mock object. In our example we want to create an `Organ` object.
 
-The class name is the only required parameter in the `add` class, but more often than not we want to mock a call to a method of an object. The extra, optional, parameters allow exactly that.
+The class name is the only required parameter in the `add` method, but more often than not we want to mock a call to a method of an object. The extra, optional, parameters allow exactly that.
 
 The second parameter is the **name of a method** in the `Organ` class: `getName`.
 
@@ -100,7 +100,7 @@ $this->assertEquals("heart", $mock->getName());
 ```
 ### Mocking an Object and Multiple Methods
 
-To mock multiple methods of an object, we simply call `add` multiple times.
+To mock multiple methods, we simply call `add` multiple times.
 
 ```php
 $mock = (new Chain($this))
@@ -121,14 +121,14 @@ $mock = (new Chain($this))
         ->addd("shoutName", "HEART")
         ->getMock();
 ```
-When `addd` is used, the `Chain` assumes that the method is a mock of whatever the last named class was before `addd` is called. In our case it is, the only one named, `Organ`.
+When `addd` is used, the `Chain` assumes that the method is a mock of whatever the last named class was before `addd` was called. In our case it is the `Organ` class.
 
-The impact is very subtle, but we have found that in complex mocks, using `addd` also provides a visual break to more easily see the different types of objects being mocked.
+The impact is very subtle, but we have found that in complex mocks, using `addd` also provides a visual break to easily see the different types of objects being mocked.
 
 ### Returning Mocks
 The third parameter of the `add` method can be given anything to be return by the mocked method: strings, arrays, objects, booleans, etc.
 
-But what if what we want returned is another mocked object? Addressing this scenario was the main purpose for which this library was created, and why the library is called `mock-chain`: We want to be able to define chains of mock objects and methods easily.
+We can even return another mocked object. Addressing this scenario is the main reason this library exist, and why it is called `mock-chain`: We want to be able to define chains of mocked objects and methods easily.
 
 To accomplish our goal we simply return the class name of the mock object we want to return.
 
@@ -140,7 +140,7 @@ $mock = (new Chain($this))
         ->getMock();
 ```
 
-It is important to note that in this new example the **main** mock object returned by `getMock` is of the `System` class. Whatever the first named class that is registered with the `Chain` becomes the **root** of the chain. Any other mocks will only be accessible through interactions with the **root** object.
+It is important to note that in this new example the **main** mock object returned by `getMock` is of the `System` class. Whatever the first named class that is registered with the `Chain` is, becomes the **root** of the chain. Any other mocks will only be accessible through interactions with the **root** object.
 
 A second mock object of class `Organ` is also being defined, and it is accessible through the `getOrgan` method from the mocked `System` object.
 
@@ -150,4 +150,109 @@ Given this structure, we can make assertions across our mocks:
 $this->assertEquals("heart",
     $mock->getOrgan("blah")->getName());
 ```
+
+### Mocking Different Returns with Sequences
+Through some paths of our code, we might need the same mocked object to respond differently under different circumstances. There are multiple ways to accomplish this with `mock-chain`, but the simplest way is to use the `Sequence` class.
+
+A `Sequence` allows us to define a number of things that should be returned, in order, every time a method is called.
+
+```php
+$organNames = (new Sequence())
+        ->add("heart")
+        ->add("lungs");
+
+$mock = (new Chain($this))
+  ->add(Organ::class, "getName", $organNames)
+  ->getMock();
+
+$this->assertEquals("heart", $mock->getName());
+$this->assertEquals("lungs", $mock->getName());
+```
+
+In this example we are creating a `Sequence` of organ names, and we are telling the chain that this sequence of things should be returned when the `getName` method in our `Organ` mock is called.
+
+Our assertions confirm the expected behavior by showing that _"heart"_ is returned when `getName` is first called, and _"lungs"_ when `getName` is called a second time. If `getName` was to be called a third or fourth time, _"lungs"_ would be returned again.
+
+Similarly to how we can return anything from mocked methods, including other mocks, we can do the same with sequences.
+
+```php
+$organs = (new Sequence())
+        ->add(Organ::class)
+        ->add("lungs");
+
+$mock = (new Chain($this))
+  ->add(System::class, "getOrgan", $organs)
+  ->add(Organ::class, "getName", "heart")
+  ->getMock();
+
+$this->assertEquals("heart", $mock->getOrgan("blah")->getName());
+$this->assertEquals("lungs", $mock->getOrgan("blah"));
+```
+
+Here we are returning a mock of `Organ` as the first element of the sequence, and a string as the second without any issues.
+
+### Mocking Different Returns with Options
+
+`Options` give us a bit more power than `Sequence` by allowing us to take into account the input to the mocked methods as we decide what should be returned.
+
+```php
+$organs = (new Options())
+  ->add("heart", Organ::class)
+  ->add("lungs", "yep, the lungs");
+
+$mock = (new Chain($this))
+  ->add(System::class, "getOrgan", $organs)
+  ->add(Organ::class, "getName", "heart")
+  ->getMock();
+
+$this->assertEquals("yep, the lungs",
+    $mock->getOrgan("lungs"));
+$this->assertEquals("heart",
+    $mock->getOrgan("heart")->getName());
+```
+
+In this `Options` object we are defining that a call to `getOrgan` with an input of _"hearts"_ should return our `Organ` mock, but a call to `getOrgan` with an input of _"lungs"_ should return the string _"yep, the lungs"_. Notice in the assertions that the order of the options does not matter.
+
+If we are dealing with more complex methods that take multiple inputs/arguments, `Options` have two mechanisms to deal with these scenarios: index and JSON string.
+
+#### Index
+```php
+$organs = (new Options())
+  ->add("heart",Organ::class)
+  ->add("lung", "yep, the left lung")
+  ->index(0);
+
+$mock = (new Chain($this))
+  ->add(System::class, "getOrganByNameAndIndex", $organs)
+  ->add(Organ::class, "getName", "heart")
+  ->getMock();
+
+$this->assertEquals("yep, the left lung",
+  $mock->getOrganByNameAndIndex("lung", 0));
+$this->assertEquals("heart",
+  $mock->getOrganByNameAndIndex("heart", 0)->getName());
+```
+
+In this example we have a more complex method `getOrganByNameAndIndex` that takes 2 arguments: an **organ name** and an **index**. If during the process of mocking we determine that we only care about one of the arguments to our method, we could model that by using the `index` method of the `Options` class. In this example, we are describing that we only care about the first argument, the **organ name**, when determining what to return.
+
+#### JSON string
+```php
+$organs = (new Options())
+  ->add(json_encode(["lung", 0]),"yep, the left lung")
+  ->add(json_encode(["lung", 1]), "yep, the right lung");
+
+$mock = (new Chain($this))
+  ->add(System::class, "getOrganByNameAndIndex", $organs)
+  ->add(Organ::class, "getName", "heart")
+  ->getMock();
+
+$this->assertEquals("yep, the left lung",
+  $mock->getOrganByNameAndIndex("lung", 0));
+$this->assertEquals("yep, the right lung",
+  $mock->getOrganByNameAndIndex("lung", 1));
+```
+When we have complex methods with multiple arguments that we want to take into account when making decisions about what to return, we can always create a JSON string of an array representing the inputs to our method.
+
+In our example, when the inputs to `getOrganByNameAndIndex` are _"lung"_ and _0_, we want to return _"yep, the left lung"_. But, if the inputs to our method are _"lung"_, and _1_, we would like to return _"yep, the right lung"_.
+
 

@@ -37,4 +37,21 @@ class System
     {
         return $this->organs;
     }
+
+    public function getOrganByNameAndIndex($name, $index)
+    {
+        $matchingOrgans = [];
+
+        foreach ($this->organs as $organ) {
+          if ($organ->getName() == $name) {
+            $matchingOrgans[] = $organ;
+          }
+        }
+
+        if (isset($matchingOrgans[$index])) {
+          return $matchingOrgans[$index];
+        }
+
+        throw new \Exception("Couldn't find organ.");
+    }
 }
