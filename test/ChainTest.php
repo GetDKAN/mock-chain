@@ -12,6 +12,17 @@ use PHPUnit\Framework\TestCase;
 
 class ChainTest extends TestCase
 {
+
+    public function testDocs() {
+      $mock = (new Chain($this))
+        ->add(System::class, "getOrgan", Organ::class)
+        ->add(Organ::class, "getName", "heart")
+        ->addd("shoutName", "HEART")
+        ->getMock();
+
+      $this->assertEquals("heart", $mock->getOrgan("blah")->getName());
+    }
+
     public function test()
     {
         $organNames = (new Sequence())->add('mouth')->add('stomach');
