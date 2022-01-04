@@ -26,12 +26,12 @@ class SequenceTest extends TestCase
     public function testSequenceThroughChain()
     {
         $sequence = (new Sequence())
-        ->add(null)
-        ->add("hello");
+            ->add(null)
+            ->add("hello");
 
         $mock = (new Chain($this))
-        ->add(Organ::class, 'getName', $sequence)
-        ->getMock();
+            ->add(Organ::class, 'getName', $sequence)
+            ->getMock();
 
         $this->assertNull($mock->getName());
         $this->assertEquals("hello", $mock->getName());
