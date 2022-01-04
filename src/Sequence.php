@@ -2,6 +2,11 @@
 
 namespace MockChain;
 
+/**
+ * Sequence of return values to respond to multiple calls to the same method.
+ *
+ * @package MockChain
+ */
 class Sequence
 {
 
