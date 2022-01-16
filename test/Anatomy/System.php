@@ -43,13 +43,13 @@ class System
         $matchingOrgans = [];
 
         foreach ($this->organs as $organ) {
-          if ($organ->getName() == $name) {
-            $matchingOrgans[] = $organ;
-          }
+            if ($organ->getName() == $name) {
+                $matchingOrgans[] = $organ;
+            }
         }
 
         if (isset($matchingOrgans[$index])) {
-          return $matchingOrgans[$index];
+            return $matchingOrgans[$index];
         }
 
         throw new \Exception("Couldn't find organ.");

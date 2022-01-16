@@ -3,8 +3,10 @@
 namespace MockChain;
 
 /**
- * Class Options
+ * Define return values for options passed to a single mock in a chain.
+ *
  * @package MockChain
+ *
  * @todo Options for complex things, like objects.
  */
 class Options
