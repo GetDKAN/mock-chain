@@ -11,6 +11,10 @@
     "autoload": {
         "psr-4": {
             "MockChain\\": "src/",
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "MockChainTest\\": "test/"
         }
     },
