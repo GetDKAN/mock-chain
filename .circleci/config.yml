@@ -18,7 +18,9 @@ jobs:
       - run:
           name: Run tests
           command: |
-            composer install
+            composer update --prefer-lowest
+            ./vendor/bin/phpunit --testsuite all
+            composer update
             ./cc-test-reporter before-build
             sudo docker-php-ext-enable xdebug
             ./vendor/bin/phpunit --testsuite all --coverage-clover clover.xml
