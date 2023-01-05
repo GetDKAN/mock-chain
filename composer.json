@@ -2,6 +2,10 @@
     "name": "getdkan/mock-chain",
     "description": "A library that helps create chains of mocked objects.",
     "license": "GPL-3.0-only",
+    "support": {
+        "source": "https://github.com/GetDKAN/mock-chain",
+        "docs": "https://github.com/GetDKAN/mock-chain"
+    },
     "authors": [
         {
             "name": "fmizzell",
@@ -19,7 +23,7 @@
         }
     },
     "require": {
-        "php": ">=7.3 <8.1",
+        "php": ">=7.3 <9.0",
         "phpunit/phpunit": ">=8.3 <9.5"
     }
 }
