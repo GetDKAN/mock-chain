@@ -80,7 +80,7 @@ jobs:
     description: |
       Simple drop-in job to test your PHP application automatically.
     executor:
-      name: "cimg/php"
+      name: php/default
       tag: << parameters.version >>
     parameters:
       app-dir:
