@@ -8,4 +8,4 @@ workflows:
       - php/test:
           matrix:
             parameters:
-              executor.tag: ["7.4", "8.0"]
+              version: ["7.4", "8.0"]
