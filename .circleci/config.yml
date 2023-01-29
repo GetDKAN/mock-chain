@@ -7,7 +7,7 @@ orbs:
 commands:
   update-packages:
     description: |
-      Install your composer packages with automated caching and best practices applied.
+      Update your composer packages with automated caching and best practices applied.
     parameters:
       app-dir:
         default: ~/project
@@ -65,7 +65,7 @@ commands:
           working_directory: <<parameters.app-dir>>
       - run:
           command: composer update <<parameters.install-flags>>
-          name: Installing Composer Packages
+          name: Updating Composer Packages
           working_directory: <<parameters.app-dir>>
       - when:
           condition: << parameters.with-cache >>
