@@ -108,6 +108,7 @@ jobs:
       - steps: << parameters.setup >>
       - update-packages:
           app-dir: <<parameters.app-dir>>
+          cache-key: composer.json
           install-flags: <<parameters.install-flags>>
       - run:
           command: composer <<parameters.test-command>>
