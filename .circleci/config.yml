@@ -2,6 +2,8 @@ version: 2.1
 orbs:
   php: circleci/php@1.1.0
 
+# Command update-packages copied almost verbatim from the PHP orb's
+# install-packages.
 commands:
   update-packages:
     description: |
@@ -74,7 +76,7 @@ commands:
                   - <<parameters.app-dir>>/<<parameters.vendor-dir>>
                   - <<parameters.cache-files-dir>>
 
-# Jobs copied mostly verbatim from the orb.
+# mock-chain-test copied almost verbatim from the orb's php/test.
 jobs:
   mock-chain-test:
     description: |
