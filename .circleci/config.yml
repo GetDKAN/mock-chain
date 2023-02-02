@@ -142,7 +142,8 @@ jobs:
               - equal: [ "8.1", << parameters.version >> ]
               - equal: [ "", << parameters.install-flags >> ]
           steps:
-            - command: ./cc-test-reporter before-build
+            - run:
+                command: ./cc-test-reporter before-build
       - run:
           command: composer <<parameters.test-command>>
           name: Run Tests
@@ -154,9 +155,10 @@ jobs:
               - equal: [ "", << parameters.install-flags >> ]
           # TODO: Report test exit code.
           steps:
-            - command: |
-                sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
-                ./cc-test-reporter after-build --coverage-input-type clover
+            - run:
+                command: |
+                  sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
+                  ./cc-test-reporter after-build --coverage-input-type clover
 
 workflows:
   all-tests:
