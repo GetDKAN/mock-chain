@@ -110,10 +110,11 @@ jobs:
     steps:
       - checkout
       - steps: << parameters.setup >>
-      - run:
-          command: |
-            php -m
-            sudo -E install-php-extensions xdebug
+      - when:
+          condition:
+            equal: [ "8.1", << parameters.version >> ]
+          steps:
+            - run: php -m && sudo -E install-php-extensions xdebug
       - update-packages:
           app-dir: <<parameters.app-dir>>
           cache-key: composer.json
@@ -129,5 +130,5 @@ workflows:
       - mock-chain-test:
           matrix:
             parameters:
-              version: ["7.3-ext-test", "7.4-ext-test", "8.0-ext-test", "8.1-ext-test"]
+              version: ["7.3", "7.4", "8.0", "8.1"]
               install-flags: ["", "--prefer-lowest"]
