@@ -129,5 +129,5 @@ workflows:
       - mock-chain-test:
           matrix:
             parameters:
-              version: ["7.3", "7.4", "8.0", "8.1"]
+              version: ["7.3-ext-test", "7.4-ext-test", "8.0-ext-test", "8.1-ext-test"]
               install-flags: ["", "--prefer-lowest"]
