@@ -114,8 +114,7 @@ jobs:
           condition:
             equal: [ "8.1", << parameters.version >> ]
           steps:
-            - run: sudo -E install-php-extensions xdebug && \
-                sudo -E docker-php-ext-enable xdebug
+            - run: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
       - update-packages:
           app-dir: <<parameters.app-dir>>
           cache-key: composer.json
