@@ -1,3 +1,5 @@
+# PHPUnit Composer min/max test, with reporting to Codeclimate.
+
 version: 2.1
 orbs:
   php: circleci/php@1.1.0
@@ -108,6 +110,8 @@ jobs:
     steps:
       - checkout
       - steps: << parameters.setup >>
+      - run:
+          - command: sudo -E install-php-extensions xdebug
       - update-packages:
           app-dir: <<parameters.app-dir>>
           cache-key: composer.json
