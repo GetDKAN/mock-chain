@@ -77,6 +77,10 @@ commands:
                 paths:
                   - <<parameters.app-dir>>/<<parameters.vendor-dir>>
                   - <<parameters.cache-files-dir>>
+  install-xdebug:
+    description: Add XDebug to the environment.
+    steps:
+      - run: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
 
 # mock-chain-test copied almost verbatim from the orb's php/test.
 jobs:
@@ -109,14 +113,14 @@ jobs:
         type: string
     steps:
       - checkout
-      - steps: << parameters.setup >>
       - when:
           condition:
             and:
               - equal: [ "8.1", << parameters.version >> ]
               - equal: [ "", << parameters.install-flags >> ]
           steps:
-            - run: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
+            - install-xdebug
+      - steps: << parameters.setup >>
       - update-packages:
           app-dir: <<parameters.app-dir>>
           cache-key: composer.json
