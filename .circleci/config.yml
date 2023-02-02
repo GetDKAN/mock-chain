@@ -78,9 +78,17 @@ commands:
                   - <<parameters.app-dir>>/<<parameters.vendor-dir>>
                   - <<parameters.cache-files-dir>>
   install-xdebug:
-    description: Add XDebug to the environment.
     steps:
-      - run: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
+      - run:
+          name: Install XDebug
+          command: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
+  install-codeclimate:
+    steps:
+      - run:
+          name: Install Codeclimate reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
 
 # mock-chain-test copied almost verbatim from the orb's php/test.
 jobs:
@@ -90,6 +98,8 @@ jobs:
     executor:
       name: php/default
       tag: << parameters.version >>
+    environment:
+      CC_TEST_REPORTER_ID: 7b1ac919c90c8ea384b4998b267e0f629185a26ffdf0f96ef4f4a09f53488ed2
     parameters:
       app-dir:
         default: ~/project
@@ -120,6 +130,7 @@ jobs:
               - equal: [ "", << parameters.install-flags >> ]
           steps:
             - install-xdebug
+            - install-codeclimate
       - steps: << parameters.setup >>
       - update-packages:
           app-dir: <<parameters.app-dir>>
