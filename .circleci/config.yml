@@ -112,7 +112,9 @@ jobs:
       - steps: << parameters.setup >>
       - when:
           condition:
-            equal: [ "8.1", << parameters.version >> ]
+            and:
+              - equal: [ "8.1", << parameters.version >> ]
+              - equal: [ "", << parameters.install-flags >> ]
           steps:
             - run: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
       - update-packages:
