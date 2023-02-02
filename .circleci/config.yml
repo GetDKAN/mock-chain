@@ -114,7 +114,7 @@ jobs:
           condition:
             equal: [ "8.1", << parameters.version >> ]
           steps:
-            - run: php -m && sudo -E install-php-extensions xdebug
+            - run: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
       - update-packages:
           app-dir: <<parameters.app-dir>>
           cache-key: composer.json
@@ -128,6 +128,7 @@ workflows:
   all-tests:
     jobs:
       - mock-chain-test:
+          test-command: test-coverage-ci
           matrix:
             parameters:
               version: ["7.3", "7.4", "8.0", "8.1"]

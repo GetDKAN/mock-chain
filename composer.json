@@ -27,6 +27,7 @@
         "phpunit/phpunit": ">=8.3 <8.5 || >=8.5.14 <9.5"
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit --testsuite all"
+        "test": "./vendor/bin/phpunit --testsuite all",
+        "test-coverage-ci": "./vendor/bin/phpunit --testsuite all --coverage-clover clover.xml"
     }
 }
