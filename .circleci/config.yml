@@ -111,7 +111,9 @@ jobs:
       - checkout
       - steps: << parameters.setup >>
       - run:
-          - command: sudo -E install-php-extensions xdebug
+          command: |
+            php -m
+            sudo -E install-php-extensions xdebug
       - update-packages:
           app-dir: <<parameters.app-dir>>
           cache-key: composer.json
