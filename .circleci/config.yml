@@ -178,5 +178,5 @@ workflows:
           test-command: test-coverage-ci
           matrix:
             parameters:
-              version: ["8.1"]
+              version: [ "7.3", "7.4", "8.0", "8.1"]
               install-flags: ["", "--prefer-lowest"]
