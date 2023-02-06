@@ -146,10 +146,9 @@ jobs:
             - run:
                 name: Run Tests w/ CodeClimate reporting.
                 command: |
-                  which sed
                   ./cc-test-reporter before-build
                   composer <<parameters.test-command>>
-                  $TEST_STATUS = $?
+                  $TEST_STATUS=$?
                   sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
                   ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_STATUS
                   exit $TEST_STATUS
