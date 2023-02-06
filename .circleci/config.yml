@@ -146,6 +146,7 @@ jobs:
             - run:
                 name: Run Tests w/ CodeClimate reporting.
                 command: |
+                  which sed
                   ./cc-test-reporter before-build
                   composer <<parameters.test-command>>
                   $TEST_STATUS = $?
