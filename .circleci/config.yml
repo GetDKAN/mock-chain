@@ -151,8 +151,7 @@ jobs:
                   ./cc-test-reporter before-build --debug
                   composer <<parameters.test-command>>
                   TEST_STATUS=$?
-                  sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
-                  ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_STATUS --debug
+                  ./cc-test-reporter after-build --prefix /var/www/html --coverage-input-type clover --exit-code $TEST_STATUS --debug
                   exit $TEST_STATUS
       # Steps without codeclimate.
       - when:
