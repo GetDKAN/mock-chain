@@ -94,7 +94,7 @@ commands:
 jobs:
   mock-chain-test:
     description: |
-      Simple drop-in job to test your PHP application automatically.
+      Run PHPUnit tests, optionally sending results to codeclimate.
     executor:
       name: php/default
       tag: << parameters.version >>
@@ -164,6 +164,8 @@ workflows:
   all-tests:
     jobs:
       - mock-chain-test:
+          environment:
+            CC_TEST_REPORTER_ID: 7b1ac919c90c8ea384b4998b267e0f629185a26ffdf0f96ef4f4a09f53488ed2
           test-command: test-coverage-ci
           matrix:
             parameters:
