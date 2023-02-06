@@ -149,9 +149,12 @@ jobs:
                   pwd
                   export GIT_BRANCH=$CIRCLE_BRANCH
                   export GIT_COMMIT_SHA=$CIRCLE_SHA1
+                  echo $GIT_BRANCH
+                  echo $GIT_COMMIT_SHA
                   ./cc-test-reporter before-build --debug
                   composer <<parameters.test-command>>
                   TEST_STATUS=$?
+                  sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
                   ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_STATUS --debug
                   exit $TEST_STATUS
       # Steps without codeclimate.
