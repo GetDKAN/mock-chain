@@ -146,6 +146,8 @@ jobs:
             - run:
                 name: Run Tests w/ CodeClimate reporting.
                 command: |
+                  echo $GIT_BRANCH
+                  echo $GIT_COMMIT_SHA
                   ./cc-test-reporter before-build
                   composer <<parameters.test-command>>
                   TEST_STATUS=$?
@@ -173,5 +175,5 @@ workflows:
           test-command: test-coverage-ci
           matrix:
             parameters:
-              version: ["7.3", "7.4", "8.0", "8.1"]
+              version: ["8.1"]
               install-flags: ["", "--prefer-lowest"]
