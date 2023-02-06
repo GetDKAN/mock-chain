@@ -152,7 +152,7 @@ jobs:
                   ./cc-test-reporter before-build --debug
                   composer <<parameters.test-command>>
                   TEST_STATUS=$?
-                  ./cc-test-reporter after-build --prefix /var/www/html --coverage-input-type clover --exit-code $TEST_STATUS --debug
+                  ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_STATUS --debug
                   exit $TEST_STATUS
       # Steps without codeclimate.
       - when:
