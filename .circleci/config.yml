@@ -146,6 +146,7 @@ jobs:
             - run:
                 name: Run Tests w/ CodeClimate reporting.
                 command: |
+                  pwd
                   export GIT_BRANCH=$CIRCLE_BRANCH
                   export GIT_COMMIT_SHA=$CIRCLE_SHA1
                   ./cc-test-reporter before-build --debug
