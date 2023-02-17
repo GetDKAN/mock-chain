@@ -11,7 +11,7 @@ class Sequence
 {
 
     private $sequence = [];
-    private $counter = 0;
+    private int $counter = 0;
 
     public function add($return)
     {

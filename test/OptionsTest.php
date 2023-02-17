@@ -15,7 +15,10 @@ class OptionsTest extends TestCase
         $options->add("hola", "chao");
         $options->add("multi", (new Sequence())->add('adieu')->add('shalom'));
 
-        $this->assertEquals(json_encode($options->options()), json_encode(["hello", "hola", "multi"]));
+        $this->assertEquals(
+            json_encode($options->options(), JSON_THROW_ON_ERROR),
+            json_encode(["hello", "hola", "multi"])
+        );
         $this->assertEquals($options->return("hello"), "goodbye");
         $this->assertEquals($options->return("hola"), "chao");
         $this->assertEquals($options->return("multi"), "adieu");

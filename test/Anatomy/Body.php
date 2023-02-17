@@ -4,7 +4,8 @@ namespace MockChainTest\Anatomy;
 
 class Body
 {
-    private $systems = [];
+
+    private array $systems = [];
 
     public function addSystem(System $system)
     {
@@ -13,7 +14,7 @@ class Body
 
     public function getSystem(string $name)
     {
-        /** @var $system  System*/
+        /** @var $system  System */
         foreach ($this->systems as $system) {
             if ($system->getName() == $name) {
                 return $system;

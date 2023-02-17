@@ -4,8 +4,8 @@ namespace MockChainTest\Anatomy;
 
 class System
 {
-    private $name;
-    private $organs = [];
+    private string $name;
+    private array $organs = [];
 
     public function __construct(string $name)
     {
