@@ -6,6 +6,7 @@
 
     <file>src</file>
     <file>test</file>
+    <file>rector.php</file>
 
     <rule ref="PSR1"/>
     <rule ref="PSR2"/>
