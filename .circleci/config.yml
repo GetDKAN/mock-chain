@@ -1,30 +1,135 @@
+# PHPUnit Composer min/max test.
+
 version: 2.1
+orbs:
+    php: circleci/php@1.1.0
+
+# Command update-packages copied almost verbatim from the PHP orb's
+# install-packages.
+commands:
+    update-packages:
+        description: |
+            Update your composer packages with automated caching and best practices applied.
+        parameters:
+            app-dir:
+                default: ~/project
+                description: Path to the directory containing your composer.json file. Not needed if composer.json lives in the root.
+                type: string
+            cache-files-dir:
+                default: /home/circleci/.composer/cache/files
+                description: Absolute path to the file cache folder. This should be inline with "composer global config cache-files-dir --absolute".
+                type: string
+            cache-key:
+                default: composer.lock
+                description: If this file is updated a new cache bucket will be created. Recommended to use composer.lock. Use composer.json when composer.lock is absent.
+                type: string
+            cache-version:
+                default: v1
+                description: Change the default cache version if you need to clear the cache for any reason.
+                type: string
+            install-flags:
+                default: --no-interaction --prefer-dist
+                description: |
+                    By default, packages will be installed with "composer install --no-interaction --prefer-dist", use this to override the standard install flags.
+                type: string
+            vendor-dir:
+                default: vendor
+                description: Relative path to the vendor folder. Relative to "app-dir". This should be inline with "composer config vendor-dir".
+                type: string
+            with-cache:
+                default: true
+                description: Enable automatic caching of your dependencies for increased speed.
+                type: boolean
+        steps:
+            - when:
+                  condition: << parameters.with-cache >>
+                  steps:
+                      - restore_cache:
+                            keys:
+                                - composer-deps-<<parameters.cache-version>>-{{ checksum "<<parameters.app-dir>>/<<parameters.cache-key>>" }}
+            - run:
+                  command: |
+                      if [ ! -f "composer.json" ] && [ ! -f "composer.lock" ]; then
+                        echo
+                        echo "---"
+                        echo "Unable to find your composer.json and composer.lock files. Did you forget to set the app-dir parameter?"
+                        echo "---"
+                        echo
+                        echo "Current directory: $(pwd)"
+                        echo
+                        echo
+                        echo "List directory: "
+                        echo
+                        ls
+                        exit 1
+                      fi
+                  name: Verify composer.json and/or composer.lock exist
+                  working_directory: <<parameters.app-dir>>
+            - run:
+                  command: composer update <<parameters.install-flags>>
+                  name: Updating Composer Packages
+                  working_directory: <<parameters.app-dir>>
+            - when:
+                  condition: << parameters.with-cache >>
+                  steps:
+                      - save_cache:
+                            key: composer-deps-<<parameters.cache-version>>-{{ checksum "<<parameters.app-dir>>/<<parameters.cache-key>>" }}
+                            paths:
+                                - <<parameters.app-dir>>/<<parameters.vendor-dir>>
+                                - <<parameters.cache-files-dir>>
+    install-xdebug:
+        steps:
+            - run:
+                  name: Install XDebug
+                  command: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
+
 jobs:
-  build:
-    docker:
-      - image: cimg/php:7.4
-    environment:
-      CC_TEST_REPORTER_ID: 7b1ac919c90c8ea384b4998b267e0f629185a26ffdf0f96ef4f4a09f53488ed2
-      XDEBUG_MODE: coverage
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: Set up Code Climate test-reporter
-          command: |
-            sudo -E install-php-extensions xdebug
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
-      - run:
-          name: Run tests
-          command: |
-            php --version
-            composer update --prefer-lowest
-            ./vendor/bin/phpunit --testsuite all
-            composer update
-            sudo docker-php-ext-enable xdebug
-            ./cc-test-reporter before-build
-            ./vendor/bin/phpunit --testsuite all --coverage-clover clover.xml
-            EXIT_CODE=$?
-            sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
-            ./cc-test-reporter after-build --coverage-input-type clover --exit-code $EXIT_CODE
+    mock-chain-test:
+        description: |
+            Run PHPUnit tests.
+        executor:
+            name: php/default
+            tag: << parameters.version >>
+        parameters:
+            app-dir:
+                default: ~/project
+                description: Path to the directory containing your composer.json file. Not needed if composer.json lives in the root.
+                type: string
+            setup:
+                default: [ ]
+                description: Provide any optional steps you would like to run prior to installing the composer packages. This is a good place to install global packages.
+                type: steps
+            test-command:
+                default: test
+                description: The name of the script within your composer.json which will run your tests.
+                type: string
+            version:
+                default: "7.4"
+                description: The `cimg/php` Docker image version tag.
+                type: string
+            install-flags:
+                default: ""
+                description: Arguments to `composer update`.
+                type: string
+        steps:
+            - checkout
+            - steps: << parameters.setup >>
+            - update-packages:
+                  app-dir: <<parameters.app-dir>>
+                  cache-key: composer.json
+                  install-flags: <<parameters.install-flags>>
+            - run:
+                  name: Run Tests
+                  working_directory: <<parameters.app-dir>>
+                  command: |
+                      composer <<parameters.test-command>>
+
+workflows:
+    all-tests:
+        jobs:
+            - mock-chain-test:
+                  test-command: phpunit
+                  matrix:
+                      parameters:
+                          version: [ "7.3", "7.4", "8.0", "8.1"]
+                          install-flags: ["", "--prefer-lowest"]
