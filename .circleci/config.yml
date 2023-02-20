@@ -102,6 +102,10 @@ commands:
                 default: ""
                 description: Arguments to `composer update`.
                 type: string
+            test-command:
+                default: test
+                description: The name of the script within your composer.json which will run your tests.
+                type: string
             report-to-codeclimate:
                 type: boolean
                 default: false
@@ -119,14 +123,14 @@ commands:
                       - install-cc-test-reporter
                       - run: |
                           ./cc-test-reporter before-build
-                          XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover clover.xml
+                          XDEBUG_MODE=coverage composer <<parameters.test-command>> -- --coverage-clover clover.xml
                           ./cc-test-reporter after-build --coverage-input-type clover --exit-code $?
             - when:
                   condition:
                       not: <<parameters.report-to-codeclimate>>
                   steps:
                       - run: |
-                          XDEBUG_MODE=off vendor/bin/phpunit
+                          XDEBUG_MODE=off composer <<parameters.test-command>>
 
 jobs:
     matrix-conditions:
@@ -153,6 +157,7 @@ jobs:
                           - equal: [ "", <<parameters.install-flags>> ]
                   steps:
                       - run-phpunit-tests:
+                          test-command: phpunit
                           report-to-codeclimate: true
                           install-flags: << parameters.install-flags >>
             - when:
@@ -163,6 +168,7 @@ jobs:
                               - equal: [ "", <<parameters.install-flags>> ]
                   steps:
                       - run-phpunit-tests:
+                            test-command: phpunit
                             install-flags: << parameters.install-flags >>
 
 workflows:
