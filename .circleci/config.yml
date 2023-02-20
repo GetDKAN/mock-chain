@@ -4,8 +4,6 @@ version: 2.1
 orbs:
     php: circleci/php@1.1.0
 
-# Command update-packages copied almost verbatim from the PHP orb's
-# install-packages.
 commands:
     update-packages:
         description: |
@@ -84,6 +82,7 @@ commands:
                   command: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
 
     install-cc-test-reporter:
+        # TODO: Parameterize location.
         steps:
             - run:
                   name: Install Codeclimate test reporter
@@ -99,14 +98,6 @@ commands:
                 default: ~/project
                 description: Path to the directory containing your composer.json file. Not needed if composer.json lives in the root.
                 type: string
-            setup:
-                default: [ ]
-                description: Provide any optional steps you would like to run prior to installing the composer packages. This is a good place to install global packages.
-                type: steps
-            version:
-                default: "7.4"
-                description: The `cimg/php` Docker image version tag.
-                type: string
             install-flags:
                 default: ""
                 description: Arguments to `composer update`.
@@ -117,7 +108,6 @@ commands:
                 description: Report coverage info to Codeclimate.
         steps:
             - checkout
-            - steps: << parameters.setup >>
             - update-packages:
                   app-dir: <<parameters.app-dir>>
                   cache-key: composer.json
