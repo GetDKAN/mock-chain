@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/php:8.0
+      - image: cimg/php:7.4
     environment:
       CC_TEST_REPORTER_ID: 7b1ac919c90c8ea384b4998b267e0f629185a26ffdf0f96ef4f4a09f53488ed2
       XDEBUG_MODE: coverage
@@ -18,11 +18,12 @@ jobs:
       - run:
           name: Run tests
           command: |
+            php --version
             composer update --prefer-lowest
             ./vendor/bin/phpunit --testsuite all
             composer update
-            ./cc-test-reporter before-build
             sudo docker-php-ext-enable xdebug
+            ./cc-test-reporter before-build
             ./vendor/bin/phpunit --testsuite all --coverage-clover clover.xml
             EXIT_CODE=$?
             sed -i 's+/var/www/html/+/home/circleci/repo/+g' clover.xml
