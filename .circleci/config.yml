@@ -155,7 +155,6 @@ jobs:
                       - run-phpunit-tests:
                           report-to-codeclimate: true
                           install-flags: << parameters.install-flags >>
-                          version: << parameters.version >>
             - when:
                   condition:
                       not:
@@ -165,7 +164,6 @@ jobs:
                   steps:
                       - run-phpunit-tests:
                             install-flags: << parameters.install-flags >>
-                            version: << parameters.version >>
 
 workflows:
     all-tests:
