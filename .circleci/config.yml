@@ -126,7 +126,7 @@ commands:
                   condition: <<parameters.report-to-codeclimate>>
                   steps:
                       - install-cc-test-reporter
-                      - command: |
+                      - run: |
                           ./cc-test-reporter before-build
                           XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover clover.xml
                           ./cc-test-reporter after-build --coverage-input-type clover --exit-code $?
@@ -134,7 +134,7 @@ commands:
                   condition:
                       not: <<parameters.report-to-codeclimate>>
                   steps:
-                      - command: |
+                      - run: |
                           XDEBUG_MODE=off vendor/bin/phpunit
 
 jobs:
