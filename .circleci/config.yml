@@ -83,6 +83,14 @@ commands:
                   name: Install XDebug
                   command: sudo -E install-php-extensions xdebug && sudo -E docker-php-ext-enable xdebug
 
+    install-cc-test-reporter:
+        steps:
+            - run:
+                  name: Install Codeclimate test reporter
+                  command: |
+                      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+                      chmod +x ./cc-test-reporter
+
 jobs:
     mock-chain-test:
         description: |
@@ -118,6 +126,14 @@ jobs:
                   app-dir: <<parameters.app-dir>>
                   cache-key: composer.json
                   install-flags: <<parameters.install-flags>>
+
+            - when:
+                  condition:
+                      and:
+                          - equal: [ "8.1", <<parameters.version>> ]
+                          - equal: [ "", <<parameters.install-flags>> ]
+                  steps:
+                      - install-cc-test-reporter
             - run:
                   name: Run Tests
                   working_directory: <<parameters.app-dir>>
