@@ -27,6 +27,6 @@
         "phpunit/phpunit": ">=8.3 <8.5 || >=8.5.14 <9.5"
     },
     "scripts": {
-        "phpcs": "./vendor/bin/phpunit --testsuite all"
+        "phpunit": "./vendor/bin/phpunit"
     }
 }
