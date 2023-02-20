@@ -125,6 +125,7 @@ commands:
             - when:
                   condition: <<parameters.report-to-codeclimate>>
                   steps:
+                      - install-xdebug
                       - install-cc-test-reporter
                       - run: |
                           ./cc-test-reporter before-build
