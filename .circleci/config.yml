@@ -94,9 +94,6 @@ commands:
     run-tests:
         description: |
             Run PHPUnit tests.
-        executor:
-            name: php/default
-            tag: << parameters.version >>
         parameters:
             app-dir:
                 default: ~/project
