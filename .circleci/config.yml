@@ -91,6 +91,54 @@ commands:
                       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
                       chmod +x ./cc-test-reporter
 
+    run-tests:
+        description: |
+            Run PHPUnit tests.
+        executor:
+            name: php/default
+            tag: << parameters.version >>
+        parameters:
+            app-dir:
+                default: ~/project
+                description: Path to the directory containing your composer.json file. Not needed if composer.json lives in the root.
+                type: string
+            setup:
+                default: [ ]
+                description: Provide any optional steps you would like to run prior to installing the composer packages. This is a good place to install global packages.
+                type: steps
+            test-command:
+                default: test
+                description: The name of the script within your composer.json which will run your tests.
+                type: string
+            version:
+                default: "7.4"
+                description: The `cimg/php` Docker image version tag.
+                type: string
+            install-flags:
+                default: ""
+                description: Arguments to `composer update`.
+                type: string
+        steps:
+            - checkout
+            - steps: << parameters.setup >>
+            - update-packages:
+                  app-dir: <<parameters.app-dir>>
+                  cache-key: composer.json
+                  install-flags: <<parameters.install-flags>>
+
+            - when:
+                  condition:
+                      and:
+                          - equal: [ "8.1", <<parameters.version>> ]
+                          - equal: [ "", <<parameters.install-flags>> ]
+                  steps:
+                      - install-cc-test-reporter
+            - run:
+                  name: Run Tests
+                  working_directory: <<parameters.app-dir>>
+                  command: |
+                      composer <<parameters.test-command>>
+
 jobs:
     matrix-conditions:
         description: Run tests for matrix
@@ -107,7 +155,7 @@ jobs:
                 description: Arguments to `composer update`.
                 type: string
         steps:
-            - mock-chain-test:
+            - run-tests:
                   install-flags: << parameters.install-flags >>
                   test-command: phpunit
                   version: << parameters.version >>
