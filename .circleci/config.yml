@@ -92,6 +92,26 @@ commands:
                       chmod +x ./cc-test-reporter
 
 jobs:
+    matrix-conditions:
+        description: Run tests for matrix
+        executor:
+            name: php/default
+            tag: << parameters.version >>
+        parameters:
+            version:
+                default: "7.4"
+                description: The `cimg/php` Docker image version tag.
+                type: string
+            install-flags:
+                default: ""
+                description: Arguments to `composer update`.
+                type: string
+        steps:
+            - mock-chain-test:
+                  install-flags: << parameters.install-flags >>
+                  test-command: phpunit
+                  version: << parameters.version >>
+
     mock-chain-test:
         description: |
             Run PHPUnit tests.
@@ -143,8 +163,7 @@ jobs:
 workflows:
     all-tests:
         jobs:
-            - mock-chain-test:
-                  test-command: phpunit
+            - matrix-conditions:
                   matrix:
                       parameters:
                           version: ["7.4", "8.0", "8.1"]
