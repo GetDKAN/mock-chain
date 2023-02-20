@@ -17,7 +17,7 @@ class Chain
     /**
      * The PHPUnit TestCase class to base our mock chain on.
      */
-    private \PHPUnit\Framework\TestCase $testCase;
+    private TestCase $testCase;
 
     private array $definitions = [];
     private $root = null;
@@ -293,7 +293,7 @@ class Chain
         }
     }
 
-    
+
     /**
      * Get the methods to be mocked for a given class.
      *
