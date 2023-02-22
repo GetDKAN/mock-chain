@@ -1,4 +1,5 @@
 # PHPUnit Composer min/max test.
+# TODO: Make our own orb out of this.
 
 version: 2.1
 orbs:
@@ -157,7 +158,6 @@ jobs:
                           - equal: [ "", <<parameters.install-flags>> ]
                   steps:
                       - run-phpunit-tests:
-                          test-command: phpunit
                           report-to-codeclimate: true
                           install-flags: << parameters.install-flags >>
             - when:
@@ -168,7 +168,6 @@ jobs:
                               - equal: [ "", <<parameters.install-flags>> ]
                   steps:
                       - run-phpunit-tests:
-                            test-command: phpunit
                             install-flags: << parameters.install-flags >>
 
 workflows:
