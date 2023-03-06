@@ -50,7 +50,7 @@ class Options
 
     public function add($option, $return)
     {
-        $option = is_array($option) ? json_encode($option, JSON_THROW_ON_ERROR) : $option;
+        $option = is_array($option) ? json_encode($option) : $option;
         $this->options[$option] = $return;
         return $this;
     }

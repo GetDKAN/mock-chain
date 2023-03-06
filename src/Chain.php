@@ -262,7 +262,7 @@ class Chain
         } elseif (isset($index)) {
             $input = $myInputs[$index];
         } else {
-            $input = json_encode($myInputs, JSON_THROW_ON_ERROR);
+            $input = json_encode($myInputs);
         }
         $actualReturn = $return->return($input);
 

@@ -45,14 +45,9 @@ class ChainTest extends TestCase
         $body = new Body();
         $body->addSystem($system);
 
-        $this->assertEquals(json_encode($body->getOrgans(), JSON_THROW_ON_ERROR), json_encode([
-            'mouth',
-            'stomach',
-        ]));
-        $this->assertEquals(json_encode($body->getSystems(), JSON_THROW_ON_ERROR), json_encode(['digestive']));
-        $this->assertEquals($body->getSystem('digestive')
-            ->getOrgan('mouth')
-            ->getName(), 'mouth');
+        $this->assertEquals(json_encode($body->getOrgans()), json_encode(['mouth', 'stomach']));
+        $this->assertEquals(json_encode($body->getSystems()), json_encode(['digestive']));
+        $this->assertEquals($body->getSystem('digestive')->getOrgan('mouth')->getName(), 'mouth');
     }
 
     public function test2()
@@ -73,14 +68,9 @@ class ChainTest extends TestCase
         $body = new Body();
         $body->addSystem($system);
 
-        $this->assertEquals(json_encode($body->getOrgans(), JSON_THROW_ON_ERROR), json_encode([
-            'mouth',
-            'stomach',
-        ]));
-        $this->assertEquals(json_encode($body->getSystems(), JSON_THROW_ON_ERROR), json_encode(['digestive']));
-        $this->assertEquals('mouth', $body->getSystem('digestive')
-            ->getOrgan('mouth')
-            ->getName());
+        $this->assertEquals(json_encode($body->getOrgans()), json_encode(['mouth', 'stomach']));
+        $this->assertEquals(json_encode($body->getSystems()), json_encode(['digestive']));
+        $this->assertEquals('mouth', $body->getSystem('digestive')->getOrgan('mouth')->getName());
     }
 
 
@@ -105,16 +95,9 @@ class ChainTest extends TestCase
         $body = new Body();
         $body->addSystem($system);
 
-        $this->assertEquals($body->getSystem('digestive')
-            ->getOrgan('mouth')
-            ->getName(), 'mouth');
-        $this->assertEquals($body->getSystem('digestive')
-            ->getOrgan('stomach')
-            ->getName(), 'stomach');
-        $this->assertEquals(
-            json_encode(['stomach']),
-            json_encode($chain->getStoredInput('organ'), JSON_THROW_ON_ERROR)
-        );
+        $this->assertEquals($body->getSystem('digestive')->getOrgan('mouth')->getName(), 'mouth');
+        $this->assertEquals($body->getSystem('digestive')->getOrgan('stomach')->getName(), 'stomach');
+        $this->assertEquals(json_encode(['stomach']), json_encode($chain->getStoredInput('organ')));
     }
 
     public function test4()
@@ -135,8 +118,8 @@ class ChainTest extends TestCase
     {
         $this->expectExceptionMessage('Trying to set mock method "blah" with onlyMethods');
         (new Chain($this))
-            ->add(Organ::class, 'blah', null)
-            ->getMock();
+          ->add(Organ::class, 'blah', null)
+          ->getMock();
     }
 
     public function testUsingAdddIncorrectly()
