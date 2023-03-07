@@ -3,11 +3,12 @@
 namespace MockChainTest;
 
 use MockChain\Chain;
-use MockChainTest\Anatomy\Body;
-use MockChainTest\Anatomy\System;
-use MockChainTest\Anatomy\Organ;
 use MockChain\Options;
 use MockChain\Sequence;
+use MockChainTest\Anatomy\Body;
+use MockChainTest\Anatomy\Organ;
+use MockChainTest\Anatomy\System;
+use PHPUnit\Framework\MockObject\CannotUseOnlyMethodsException;
 use PHPUnit\Framework\TestCase;
 
 class ChainTest extends TestCase
@@ -116,7 +117,17 @@ class ChainTest extends TestCase
 
     public function testNonExistentMethod()
     {
-        $this->expectExceptionMessage('Trying to set mock method "blah" with onlyMethods');
+        // CannotUseOnlyMethodsException only exists in PHPUnit 9.5+, so we
+        // check whether it exists to determine which exception will be thrown
+        // in this test.
+        $exception_class = \Exception::class;
+        $exception_message = 'Trying to set mock method "blah" with onlyMethods';
+        if (class_exists(CannotUseOnlyMethodsException::class)) {
+            $exception_class = CannotUseOnlyMethodsException::class;
+            $exception_message = 'Trying to configure method "blah" with onlyMethods(), but it does not exist in class';
+        }
+        $this->expectException($exception_class);
+        $this->expectExceptionMessage($exception_message);
         (new Chain($this))
           ->add(Organ::class, 'blah', null)
           ->getMock();
