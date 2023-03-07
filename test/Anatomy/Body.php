@@ -4,7 +4,7 @@ namespace MockChainTest\Anatomy;
 
 class Body
 {
-    private $systems = [];
+    private array $systems = [];
 
     public function addSystem(System $system)
     {

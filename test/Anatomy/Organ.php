@@ -4,7 +4,7 @@ namespace MockChainTest\Anatomy;
 
 class Organ
 {
-    private $name;
+    private string $name;
 
     public function __construct(string $name)
     {

@@ -16,24 +16,20 @@ class Chain
 {
     /**
      * The PHPUnit TestCase class to base our mock chain on.
-     *
-     * @var \PHPUnit\Framework\TestCase
      */
-    private $testCase;
+    private TestCase $testCase;
 
-    private $definitions = [];
+    private array $definitions = [];
     private $root = null;
-    private $storeIds = [];
-    private $store = [];
+    private array $storeIds = [];
+    private array $store = [];
 
     private $lastClass;
 
     /**
      * Instances of already built mocks, keyed by object class.
-     *
-     * @var array
      */
-    private $mocks;
+    private ?array $mocks = null;
 
     /**
      * Constructor.
@@ -128,7 +124,7 @@ class Chain
      */
     public function getStoredInput($id): array
     {
-        return (isset($this->store[$id])) ? $this->store[$id] : [];
+        return $this->store[$id] ?? [];
     }
 
     /**
@@ -148,17 +144,11 @@ class Chain
                 throw new \Exception("method {$method} does not exist in {$objectClass}");
             }
 
-            $mock->method($method)->willReturnCallback(function () use (
+            $mock->method($method)->willReturnCallback(fn() => $this->buildReturn(
                 $objectClass,
-                $mock,
-                $method
-            ) {
-                return $this->buildReturn(
-                    $objectClass,
-                    $method,
-                    func_get_args()
-                );
-            });
+                $method,
+                func_get_args()
+            ));
         }
 
         return $mock;
@@ -221,7 +211,7 @@ class Chain
      */
     private function buildReturn(string $objectClass, string $method, array $inputs, $return = null)
     {
-        $return = (isset($return)) ? $return : $this->getReturn($objectClass, $method);
+        $return ??= $this->getReturn($objectClass, $method);
 
         $this->storeInputs($objectClass, $method, $inputs);
 
@@ -303,7 +293,7 @@ class Chain
         }
     }
 
-    
+
     /**
      * Get the methods to be mocked for a given class.
      *
