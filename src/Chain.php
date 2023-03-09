@@ -160,6 +160,9 @@ class Chain
     private function getMockFor($objectClass)
     {
         $builder = $this->getBuilder($objectClass);
+        $methods = $this->getMethods($objectClass);
+        $builder->onlyMethods($methods);
+
         return $builder->getMockForAbstractClass();
     }
 
