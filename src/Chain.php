@@ -27,11 +27,6 @@ class Chain
     private $lastClass;
 
     /**
-     * Instances of already built mocks, keyed by object class.
-     */
-    private ?array $mocks = null;
-
-    /**
      * Constructor.
      *
      * @param \PHPUnit\Framework\TestCase $case
@@ -164,19 +159,8 @@ class Chain
      */
     private function getMockFor($objectClass)
     {
-        if (!isset($this->mocks[$objectClass])) {
-            $methods = $this->getMethods($objectClass);
-
-            $builder = $this->getBuilder($objectClass);
-
-            if (!empty($methods)) {
-                $builder->onlyMethods($methods);
-            }
-
-            $this->mocks[$objectClass] = $builder->getMockForAbstractClass();
-        }
-
-        return $this->mocks[$objectClass];
+        $builder = $this->getBuilder($objectClass);
+        return $builder->getMockForAbstractClass();
     }
 
     /**
