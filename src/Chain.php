@@ -200,25 +200,7 @@ class Chain
         } elseif ($return instanceof Sequence) {
             $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
         } elseif ($return instanceof Options) {
-            $myInputs = $inputs;
-            if ($use = $return->getUse()) {
-                $myInputs = array_merge($myInputs, $this->getStoredInput($use));
-            }
-
-            $index = $return->getIndex();
-            if (count($myInputs) == 1) {
-                $input = array_shift($myInputs);
-            } elseif (isset($index)) {
-                $input = $myInputs[$index];
-            } else {
-                $input = json_encode($myInputs);
-            }
-            $actualReturn = $return->return($input);
-
-            if (!isset($actualReturn)) {
-                throw new \Exception("Option {$input} does not exist.");
-            }
-
+            $actualReturn = $this->getReturnFromOptions($inputs, $return);
             $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $actualReturn);
         } elseif ($return instanceof \Exception) {
             throw $return;
@@ -236,6 +218,38 @@ class Chain
         }
 
         return $return;
+    }
+
+    /**
+     * Extract a return value from an Options object.
+     * @param array $myInputs
+     *   Method inputs.
+     * @param Options $return
+     *   A mock chain options object.
+     * @return mixed
+     *   The correct mocked return for the method.
+     */
+    private function getReturnFromOptions($myInputs, $return)
+    {
+        if ($use = $return->getUse()) {
+            $myInputs = array_merge($myInputs, $this->getStoredInput($use));
+        }
+
+        $index = $return->getIndex();
+        if (count($myInputs) == 1) {
+            $input = array_shift($myInputs);
+        } elseif (isset($index)) {
+            $input = $myInputs[$index];
+        } else {
+            $input = json_encode($myInputs);
+        }
+        $actualReturn = $return->return($input);
+
+        if (!isset($actualReturn)) {
+            throw new \Exception("Option {$input} does not exist.");
+        }
+
+        return $actualReturn;
     }
 
     /**
