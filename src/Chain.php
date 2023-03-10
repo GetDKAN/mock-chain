@@ -27,11 +27,6 @@ class Chain
     private $lastClass;
 
     /**
-     * Instances of already built mocks, keyed by object class.
-     */
-    private ?array $mocks = null;
-
-    /**
      * Constructor.
      *
      * @param \PHPUnit\Framework\TestCase $case
@@ -137,46 +132,29 @@ class Chain
      */
     private function build($objectClass)
     {
-        $mock = $this->getMockFor($objectClass);
+        $methods = $this->getMethods($objectClass);
 
-        foreach ($this->getMethods($objectClass) as $method) {
+        $builder = $this->getBuilder($objectClass);
+
+        if (!empty($methods)) {
+            $builder->onlyMethods($methods);
+        }
+        $mock = $builder->getMockForAbstractClass();
+
+        foreach ($methods as $method) {
             if (!method_exists($objectClass, $method)) {
                 throw new \Exception("method {$method} does not exist in {$objectClass}");
             }
 
             $mock->method($method)->willReturnCallback(fn() => $this->buildReturn(
                 $objectClass,
+                $mock,
                 $method,
                 func_get_args()
             ));
         }
 
         return $mock;
-    }
-
-    /**
-     * Get a mock for a specific class, from the internal $mocks array.
-     *
-     * @param string $objectClass
-     *   Qualified class name.
-     *
-     * @return \PHPUnit\Framework\MockObject\MockObject
-     */
-    private function getMockFor($objectClass)
-    {
-        if (!isset($this->mocks[$objectClass])) {
-            $methods = $this->getMethods($objectClass);
-
-            $builder = $this->getBuilder($objectClass);
-
-            if (!empty($methods)) {
-                $builder->onlyMethods($methods);
-            }
-
-            $this->mocks[$objectClass] = $builder->getMockForAbstractClass();
-        }
-
-        return $this->mocks[$objectClass];
     }
 
     /**
@@ -209,28 +187,48 @@ class Chain
      * @return mixed
      *   The correct mocked return value.
      */
-    private function buildReturn(string $objectClass, string $method, array $inputs, $return = null)
+    private function buildReturn(string $objectClass, $mock, string $method, array $inputs, $return = null)
     {
         $return ??= $this->getReturn($objectClass, $method);
-
-        $this->storeInputs($objectClass, $method, $inputs);
+        $storeId = $this->getStoreId($objectClass, $method);
+        if ($storeId) {
+            $this->store[$storeId] = $inputs;
+        }
 
         if ($return instanceof ReturnNull) {
             $return = null;
         } elseif ($return instanceof Sequence) {
-            $return = $this->buildReturn($objectClass, $method, $inputs, $return->return());
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $return->return());
         } elseif ($return instanceof Options) {
-            $actualReturn = $this->getReturnFromOptions($inputs, $return);
-            $return = $this->buildReturn($objectClass, $method, $inputs, $actualReturn);
+            $myInputs = $inputs;
+            if ($use = $return->getUse()) {
+                $myInputs = array_merge($myInputs, $this->getStoredInput($use));
+            }
+
+            $index = $return->getIndex();
+            if (count($myInputs) == 1) {
+                $input = array_shift($myInputs);
+            } elseif (isset($index)) {
+                $input = $myInputs[$index];
+            } else {
+                $input = json_encode($myInputs);
+            }
+            $actualReturn = $return->return($input);
+
+            if (!isset($actualReturn)) {
+                throw new \Exception("Option {$input} does not exist.");
+            }
+
+            $return = $this->buildReturn($objectClass, $mock, $method, $inputs, $actualReturn);
         } elseif ($return instanceof \Exception) {
             throw $return;
         } elseif (is_string($return)) {
-            // Class exists is case-insensitive, to keep string from being
+            // Class exists is case insensitive, to keep string from being
             // confused with actual classes, we make the, sometimes invalid,
             // assumption that class names start with an uppercase letter.
             if ((ucfirst($return) == $return) && (class_exists($return) || interface_exists($return))) {
                 if ($return == $objectClass) {
-                    $return = $this->getMockFor($objectClass);
+                    $return = $mock;
                 } else {
                     $return = $this->build($return);
                 }
@@ -239,60 +237,6 @@ class Chain
 
         return $return;
     }
-
-    /**
-     * Extract a return value from an Options object.
-     * @param array $myInputs
-     *   Method inputs. (??)
-     * @param Options $return
-     *   A mock chain options object.
-     * @return mixed
-     *   The correct mocked return for the method.
-     */
-    private function getReturnFromOptions($myInputs, $return)
-    {
-
-        if ($use = $return->getUse()) {
-            $myInputs = array_merge($myInputs, $this->getStoredInput($use));
-        }
-
-        $index = $return->getIndex();
-        if (count($myInputs) == 1) {
-            $input = array_shift($myInputs);
-        } elseif (isset($index)) {
-            $input = $myInputs[$index];
-        } else {
-            $input = json_encode($myInputs);
-        }
-        $actualReturn = $return->return($input);
-
-        if (!isset($actualReturn)) {
-            throw new \Exception("Option {$input} does not exist.");
-        }
-
-        return $actualReturn;
-    }
-
-    /**
-     * Store the method's inputs via a storeId.
-     *
-     * @param string $objectClass
-     *   Qualified class name for mocked object.
-     * @param string $method
-     *   Method name.
-     * @param array $inputs
-     *   Method input array (??)
-     *
-     * @todo Better docs for this method.
-     */
-    private function storeInputs($objectClass, $method, $inputs)
-    {
-        $storeId = $this->getStoreId($objectClass, $method);
-        if ($storeId) {
-            $this->store[$storeId] = $inputs;
-        }
-    }
-
 
     /**
      * Get the methods to be mocked for a given class.
