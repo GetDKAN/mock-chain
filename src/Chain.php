@@ -142,10 +142,6 @@ class Chain
         $mock = $builder->getMockForAbstractClass();
 
         foreach ($methods as $method) {
-            if (!method_exists($objectClass, $method)) {
-                throw new \Exception("method {$method} does not exist in {$objectClass}");
-            }
-
             $mock->method($method)->willReturnCallback(fn() => $this->buildReturn(
                 $objectClass,
                 $mock,
@@ -282,15 +278,12 @@ class Chain
      * @param mixed $method
      *   Method name.
      *
-     * @return string|Sequence|Options|\Exception
+     * @return string|Sequence|Options|\Exception|null
      *   The return as defined.
      */
     private function getReturn($objectClass, $method)
     {
-        if (isset($this->definitions[$objectClass][$method])) {
-            return $this->definitions[$objectClass][$method];
-        }
-        return null;
+        return $this->definitions[$objectClass][$method] ?? null;
     }
 
     /**
@@ -301,16 +294,13 @@ class Chain
      * @param mixed $method
      *   Method name.
      *
-     * @return string
+     * @return string|null
      *   Store ID.
      *
      * @todo Better docs for this method.
      */
     private function getStoreId($objectClass, $method)
     {
-        if (isset($this->storeIds[$objectClass][$method])) {
-            return $this->storeIds[$objectClass][$method];
-        }
-        return null;
+        return $this->storeIds[$objectClass][$method] ?? null;
     }
 }
