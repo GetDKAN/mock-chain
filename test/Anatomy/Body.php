@@ -6,7 +6,7 @@ class Body
 {
     private array $systems = [];
 
-    public function addSystem(System $system)
+    public function addSystem(System $system): void
     {
         $this->systems[] = $system;
     }
@@ -22,7 +22,10 @@ class Body
         return null;
     }
 
-    public function getSystems()
+    /**
+     * @return mixed[]
+     */
+    public function getSystems(): array
     {
         $systems = [];
 
@@ -33,7 +36,10 @@ class Body
         return $systems;
     }
 
-    public function getOrgans()
+    /**
+     * @return mixed[]
+     */
+    public function getOrgans(): array
     {
         $organs = [];
         /* @var $system  System */

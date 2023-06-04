@@ -18,7 +18,7 @@ class Options
     /**
      * The position in the inputs array of the relevant data for this option.
      */
-    private $index = null;
+    private $index;
 
     public function __construct()
     {
@@ -55,7 +55,7 @@ class Options
         return $this;
     }
 
-    public function options()
+    public function options(): array
     {
         return array_keys($this->options);
     }

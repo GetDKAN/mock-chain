@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class OptionsTest extends TestCase
 {
-    public function test()
+    public function test(): void
     {
         $options = new Options();
         $options->add("hello", "goodbye");
