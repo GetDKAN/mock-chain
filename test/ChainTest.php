@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 class ChainTest extends TestCase
 {
 
-    public function testDocs()
+    public function testDocs(): void
     {
         $organs = (new Options())
             ->add(json_encode(["lung", 0]), "yep, the left lung")
@@ -29,7 +29,7 @@ class ChainTest extends TestCase
         $this->assertEquals("yep, the right lung", $mock->getOrganByNameAndIndex("lung", 1));
     }
 
-    public function test()
+    public function test(): void
     {
         $organNames = (new Sequence())->add('mouth')->add('stomach');
 
@@ -51,7 +51,7 @@ class ChainTest extends TestCase
         $this->assertEquals($body->getSystem('digestive')->getOrgan('mouth')->getName(), 'mouth');
     }
 
-    public function test2()
+    public function test2(): void
     {
         $organNames = (new Sequence())->add('mouth')->add('stomach');
 
@@ -75,7 +75,7 @@ class ChainTest extends TestCase
     }
 
 
-    public function test3()
+    public function test3(): void
     {
         $organs = (new Options())
             ->add('mouth', Organ::class)
@@ -101,7 +101,7 @@ class ChainTest extends TestCase
         $this->assertEquals(json_encode(['stomach']), json_encode($chain->getStoredInput('organ')));
     }
 
-    public function test4()
+    public function test4(): void
     {
         $this->expectExceptionMessage("blah");
 
@@ -115,7 +115,7 @@ class ChainTest extends TestCase
         $body->getSystem("blah");
     }
 
-    public function testNonExistentMethod()
+    public function testNonExistentMethod(): void
     {
         // CannotUseOnlyMethodsException only exists in PHPUnit 9.5+, so we
         // check whether it exists to determine which exception will be thrown
@@ -133,13 +133,13 @@ class ChainTest extends TestCase
           ->getMock();
     }
 
-    public function testUsingAdddIncorrectly()
+    public function testUsingAdddIncorrectly(): void
     {
         $this->expectExceptionMessage("You should use the add method before using addd.");
         (new Chain($this))->addd("hello");
     }
 
-    public function testNonExistentOption()
+    public function testNonExistentOption(): void
     {
         $this->expectExceptionMessage('Option digestive does not exist');
         $options = new Options();

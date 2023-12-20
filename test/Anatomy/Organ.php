@@ -11,12 +11,12 @@ class Organ
         $this->name = $name;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function shoutName()
+    public function shoutName(): string
     {
         return strtoupper($this->name);
     }
