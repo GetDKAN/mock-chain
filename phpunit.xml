@@ -9,6 +9,10 @@
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
     </listeners>
+    <php>
+        <!-- Only display deprecations, no fails. -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+    </php>
     <testsuites>
         <testsuite name="all">
             <directory>test</directory>
