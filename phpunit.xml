@@ -10,7 +10,7 @@
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
     </listeners>
     <php>
-        <!-- Only display deprecations, no fails. -->
+        <!-- Don't fail for external dependencies. -->
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0"/>
     </php>
     <testsuites>
