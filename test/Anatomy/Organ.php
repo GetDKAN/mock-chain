@@ -16,7 +16,7 @@ class Organ
         return $this->name;
     }
 
-    public function shoutName()
+    public function shoutName(): string
     {
         return strtoupper($this->name);
     }

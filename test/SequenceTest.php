@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class SequenceTest extends TestCase
 {
-    public function test()
+    public function test(): void
     {
         $sequence = new Sequence();
         $sequence->add(null);
@@ -23,7 +23,7 @@ class SequenceTest extends TestCase
         $this->assertEquals($sequence->return(), 2);
     }
 
-    public function testSequenceThroughChain()
+    public function testSequenceThroughChain(): void
     {
         $sequence = (new Sequence())
             ->add(null)

@@ -12,12 +12,12 @@ class System
         $this->name = $name;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function addOrgan(Organ $organ)
+    public function addOrgan(Organ $organ): void
     {
         $this->organs[] = $organ;
     }
@@ -33,7 +33,7 @@ class System
         return null;
     }
 
-    public function getOrgans()
+    public function getOrgans(): array
     {
         return $this->organs;
     }

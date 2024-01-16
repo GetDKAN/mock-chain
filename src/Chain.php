@@ -2,6 +2,8 @@
 
 namespace MockChain;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,7 +22,7 @@ class Chain
     private TestCase $testCase;
 
     private array $definitions = [];
-    private $root = null;
+    private $root;
     private array $storeIds = [];
     private array $store = [];
 
@@ -29,7 +31,7 @@ class Chain
     /**
      * Constructor.
      *
-     * @param \PHPUnit\Framework\TestCase $case
+     * @param TestCase $case
      *   As a chain is usually instantiated from inside a PHPUnit test method,
      *   this will often look like `new Chain($this)`.
      */
@@ -99,7 +101,7 @@ class Chain
     /**
      * Build a usable mock object from the chain.
      *
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      */
     public function getMock()
     {
@@ -127,10 +129,10 @@ class Chain
      *
      * @param string $objectClass
      *   Qualified class name.
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      *   A built PHPUnit mock object.
      */
-    private function build($objectClass)
+    private function build(string $objectClass)
     {
         $methods = $this->getMethods($objectClass);
 
@@ -158,10 +160,10 @@ class Chain
      * @param string $class
      *   Qualified class name.
      *
-     * @return \PHPUnit\Framework\MockObject\MockBuilder
+     * @return MockBuilder
      *   MockBuilder object.
      */
-    private function getBuilder($class)
+    private function getBuilder(string $class)
     {
         $builder = $this->testCase->getMockBuilder($class);
         $builder->disableOriginalConstructor();
@@ -225,7 +227,7 @@ class Chain
      * @return mixed
      *   The correct mocked return for the method.
      */
-    private function getReturnFromOptions($myInputs, $return)
+    private function getReturnFromOptions(array $myInputs, Options $return)
     {
         if ($use = $return->getUse()) {
             $myInputs = array_merge($myInputs, $this->getStoredInput($use));
@@ -257,7 +259,7 @@ class Chain
      * @return array
      *   Methods to be mocked.
      */
-    private function getMethods($objectClass)
+    private function getMethods(string $objectClass): array
     {
         $methods = [];
 
@@ -281,7 +283,7 @@ class Chain
      * @return string|Sequence|Options|\Exception|null
      *   The return as defined.
      */
-    private function getReturn($objectClass, $method)
+    private function getReturn(string $objectClass, string $method)
     {
         return $this->definitions[$objectClass][$method] ?? null;
     }
@@ -299,7 +301,7 @@ class Chain
      *
      * @todo Better docs for this method.
      */
-    private function getStoreId($objectClass, $method)
+    private function getStoreId(string $objectClass, string $method)
     {
         return $this->storeIds[$objectClass][$method] ?? null;
     }
