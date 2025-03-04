@@ -15,7 +15,7 @@
     "require": {
         "php": ">=7.4 <9.0",
         "ext-json": "*",
-        "phpunit/phpunit": "^9.6"
+        "phpunit/phpunit": ">=8.3 <8.5 || >8.5.14 <10"
     },
     "require-dev": {
         "rector/rector": "^2.0.0",
