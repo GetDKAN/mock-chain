@@ -12,7 +12,7 @@ namespace MockChain;
 class Options
 {
 
-    private $options;
+    private array $options;
     private $storeId;
 
     /**
@@ -26,7 +26,7 @@ class Options
         $this->storeId = null;
     }
 
-    public function use($storeId)
+    public function use($storeId): self
     {
         $this->storeId = $storeId;
         return $this;
@@ -37,7 +37,7 @@ class Options
         return $this->storeId;
     }
 
-    public function index($index)
+    public function index($index): self
     {
         $this->index = $index;
         return $this;
@@ -48,7 +48,7 @@ class Options
         return $this->index;
     }
 
-    public function add($option, $return)
+    public function add($option, $return): self
     {
         $option = is_array($option) ? json_encode($option) : $option;
         $this->options[$option] = $return;
