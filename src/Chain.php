@@ -54,7 +54,7 @@ class Chain
      * @return Chain
      *   Updated chain object.
      */
-    public function add($objectClass, $method = null, $return = null, $storeId = null)
+    public function add($objectClass, $method = null, $return = null, $storeId = null): self
     {
         $this->lastClass = $objectClass;
 
