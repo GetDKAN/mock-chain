@@ -13,7 +13,7 @@ class Sequence
     private $sequence = [];
     private int $counter = 0;
 
-    public function add($return)
+    public function add($return): self
     {
         if (!isset($return)) {
             $this->sequence[] = new ReturnNull();
