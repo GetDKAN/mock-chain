@@ -165,7 +165,7 @@ class Chain
      */
     private function getBuilder(string $class)
     {
-        $builder = $this->testCase->getMockBuilder($class);
+        $builder = new MockBuilder($this->testCase, $class);
         $builder->disableOriginalConstructor();
         return $builder;
     }
