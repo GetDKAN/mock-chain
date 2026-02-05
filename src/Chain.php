@@ -141,7 +141,7 @@ class Chain
         if (!empty($methods)) {
             $builder->onlyMethods($methods);
         }
-        $mock = $builder->getMockForAbstractClass();
+        $mock = $builder->getMock();
 
         foreach ($methods as $method) {
             $mock->method($method)->willReturnCallback(fn() => $this->buildReturn(
